@@ -1372,13 +1372,13 @@ var numDate = m.valueOf()
  
               })
 
-              User.find({customer:customer, shop:shop},function(err,nocs){
+              User.find({customer:customer, shop:shop},function(err,ocs){
   
                 for(var i = 0; i<nocs.length;i++){
                 
             
             
-    let id = nocs[i]._id
+    let id = ocs[i]._id
     var not = new Note();
     not.role = 'teacher'
     not.subject = 'Incoming Delivery';
@@ -1395,7 +1395,7 @@ var numDate = m.valueOf()
     not.date = m
 
     not.dateViewed = 'null'
-    not.recId = nocs[i]._id
+    not.recId = ocs[i]._id
     not.recRole = 'merchant'
     not.senderPhoto = 'propic.jpg'
     not.numDate = numDate
