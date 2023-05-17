@@ -346,6 +346,32 @@ router.get('/viewStock',isLoggedIn,function(req,res){
 
 
 
+router.post('/verifyScan',function(req,res){
+  
+    var barcodeNumber = req.body.code
+     Product.find({barcodeNumber:barcodeNumber},function(err,docs){
+    if(docs == undefined){
+      res.redirect('/verify')
+    }else
+    console.log(docs,'docs')
+   
+       res.send(docs[0])
+     })
+   })
+   
+
+   router.post('/verifyScanX',function(req,res){
+  
+    var barcodeNumber = req.body.code
+     Stock.find({barcodeNumber:barcodeNumber},function(err,docs){
+    if(docs == undefined){
+      res.redirect('/verify')
+    }else
+    console.log(docs,'docs')
+   
+       res.send(docs[0])
+     })
+   })
 
 function encryptPassword(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(5), null);  
