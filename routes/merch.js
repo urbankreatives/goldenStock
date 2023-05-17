@@ -262,6 +262,28 @@ let reg = /\d+\.*\d*/g;
 let result = quan.match(reg)
 let currentStock = Number(result)
 
+req.check('barcodeNumber','Enter Barcode Number').notEmpty();
+  req.check('category','Enter Product Category').notEmpty();
+  req.check('quantity','Enter Quantity').notEmpty();
+
+ 
+  
+
+  
+  
+  var errors = req.validationErrors();
+   
+  if (errors) {
+
+    req.session.errors = errors;
+    req.session.success = false;
+    res.render('merchant/stockUpdate',{ errors:req.session.errors})
+    
+  
+  }else{
+
+ 
+
 ShopStock.find({barcodeNumber:barcodeNumber,shop:shop,customer:customer},function(err,docs){
 let oldStock = docs[0].currentQuantity
 let sales = docs[0].currentQuantity - currentStock
@@ -294,8 +316,8 @@ sale.save()
 
 res.redirect('/merch/update')
 })
-
-
+  }
+ 
 
 
 
