@@ -1372,6 +1372,16 @@ var numDate = m.valueOf()
  
               })
 
+
+              Product.find({barcodeNumber:barcodeNumber},function(err,focs){
+                let idN = focs[0]._id
+                 
+                rqty =  docs[0].quantity - pro.quantityDispatched 
+               
+                Product.findByIdAndUpdate(idN,{$set:{quantity:rqty}},function(err,vocs){
+   
+                })
+
               User.find({customer:customer, shop:shop},function(err,ocs){
   
                 for(var i = 0; i<ocs.length;i++){
@@ -1380,7 +1390,7 @@ var numDate = m.valueOf()
             
     let id = ocs[i]._id
     var not = new Note();
-    not.role = 'teacher'
+    not.role = 'admin'
     not.subject = 'Incoming Delivery';
     not.message = 'Incoming Delivery for'+" "+name
     not.examLink = 'null'
@@ -1411,7 +1421,7 @@ var numDate = m.valueOf()
         })
  
              })
-
+            })
           
           /*  req.session.message = {
               type:'success',
