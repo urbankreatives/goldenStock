@@ -1309,6 +1309,8 @@ router.post('/dispatch',isLoggedIn, function(req,res){
   var dispatchedQty = req.body.dispatchedQty
   var shop = req.body.shopName
   var customer = req.body.customer
+  var user = req.user.role
+var numDate = m.valueOf()
 
 
 
@@ -1373,23 +1375,30 @@ router.post('/dispatch',isLoggedIn, function(req,res){
               User.find({customer:customer, shop:shop},function(err,nocs){
   
                 for(var i = 0; i<nocs.length;i++){
-                  let id = noc[i]._id
-              var not = new Note();
-              not.role = role
-              not.subject = 'Incoming Delivery';
-              not.message = 'Incoming Delivery for'+" "+name
-              not.status = 'not viewed';
-              not.status1 = 'new';
-              not.user = user;
-              not.type = 'null'
-              not.status2 = 'new'
-              not.status3 = 'new'
-              not.status4 = 'null'
-              not.date = date
-              not.dateViewed = 'null'
-              not.recId = docs[i]._id
-              not.recRole = recRole
-              not.numDate = numDate
+                
+            
+            
+    let id = nocs[i]._id
+    var not = new Note();
+    not.role = 'teacher'
+    not.subject = 'Incoming Delivery';
+    not.message = 'Incoming Delivery for'+" "+name
+    not.examLink = 'null'
+    not.status = 'not viewed';
+    not.status1 = 'new';
+    not.user = user;
+    not.quizId = 'null'
+    not.type = 'exam'
+    not.status2 = 'new'
+    not.status3 = 'new'
+    not.status4 = 'null'
+    not.date = m
+
+    not.dateViewed = 'null'
+    not.recId = nocs[i]._id
+    not.recRole = 'student'
+    not.senderPhoto = 'propic.jpg'
+    not.numDate = numDate
              
   
                
