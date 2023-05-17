@@ -1374,7 +1374,7 @@ var numDate = m.valueOf()
 
               User.find({customer:customer, shop:shop},function(err,ocs){
   
-                for(var i = 0; i<nocs.length;i++){
+                for(var i = 0; i<ocs.length;i++){
                 
             
             
