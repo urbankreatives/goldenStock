@@ -811,7 +811,7 @@ var button8 = document.getElementById('myChart8tab').addEventListener('click', f
       
            console.log(labels3,'labels')
            chart.updateSeries([{
-              name: 'Sales',
+              name: 'Stock',
               data: labels3,
               
           

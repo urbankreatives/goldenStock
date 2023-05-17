@@ -1455,6 +1455,19 @@ router.get('/verify',isLoggedIn,function(req,res){
    })
    
 
+   router.post('/verifyScanX',function(req,res){
+  
+    var barcodeNumber = req.body.code
+     Stock.find({barcodeNumber:barcodeNumber},function(err,docs){
+    if(docs == undefined){
+      res.redirect('/verify')
+    }else
+    console.log(docs,'docs')
+   
+       res.send(docs[0])
+     })
+   })
+
   //Autocomplete for customer
   router.get('/autocomplete/',isLoggedIn, function(req, res, next) {
     var id = req.user._id
