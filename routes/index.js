@@ -1396,7 +1396,7 @@ var numDate = m.valueOf()
 
     not.dateViewed = 'null'
     not.recId = nocs[i]._id
-    not.recRole = 'student'
+    not.recRole = 'merchant'
     not.senderPhoto = 'propic.jpg'
     not.numDate = numDate
              
