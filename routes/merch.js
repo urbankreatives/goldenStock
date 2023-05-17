@@ -287,7 +287,7 @@ req.check('barcodeNumber','Enter Barcode Number').notEmpty();
 ShopStock.find({barcodeNumber:barcodeNumber,shop:shop,customer:customer},function(err,docs){
 let oldStock = docs[0].currentQuantity
 let sales = docs[0].currentQuantity - currentStock
-ShopStock.findByIdAndUpdate(docs[0]._id,{$set:{currentStock:currentStock, openingQuantity:oldStock}},function(err,locs){
+ShopStock.findByIdAndUpdate(docs[0]._id,{$set:{currentQuantity:currentStock, openingQuantity:oldStock}},function(err,locs){
 
 })
 

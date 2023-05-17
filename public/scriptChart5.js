@@ -187,7 +187,7 @@ var button = document.getElementById('myChart5tab').addEventListener('click', fu
       
            console.log(labels3,'labels')
            chart.updateSeries([{
-              name: 'Sales',
+              name: 'Stock',
               data: labels3,
               
           
@@ -397,7 +397,7 @@ var button6 = document.getElementById('myChart6tab').addEventListener('click', f
       
            console.log(labels3,'labels')
            chart.updateSeries([{
-              name: 'Sales',
+              name: 'Stock',
               data: labels3,
               
           
@@ -605,7 +605,7 @@ var button7 = document.getElementById('myChart7tab').addEventListener('click', f
       
            console.log(labels3,'labels')
            chart.updateSeries([{
-              name: 'Sales',
+              name: 'Stock',
               data: labels3,
               
           
@@ -1022,7 +1022,7 @@ var button9 = document.getElementById('myChart9tab').addEventListener('click', f
       
            console.log(labels3,'labels')
            chart.updateSeries([{
-              name: 'Sales',
+              name: 'Stock',
               data: labels3,
               
           
