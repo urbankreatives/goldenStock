@@ -1370,7 +1370,7 @@ router.post('/dispatch',isLoggedIn, function(req,res){
  
               })
 
-              User.find({customer:customer, shop:shop},function(err,docs){
+              User.find({customer:customer, shop:shop},function(err,nocs){
   
                 for(var i = 0; i<nocs.length;i++){
                   let id = noc[i]._id
