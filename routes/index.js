@@ -1311,7 +1311,7 @@ router.post('/dispatch',isLoggedIn, function(req,res){
   var customer = req.body.customer
   var user = req.user.role
 var numDate = m.valueOf()
-
+var arr= ['months']
 
 
   req.check('barcodeNumber','Enter Barcode Number').notEmpty();
