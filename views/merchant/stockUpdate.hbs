@@ -1024,6 +1024,11 @@
 											<div class="card-body pt-5">
 
 												   <script>
+													    $(":input").keypress(function(event){
+    if (event.which == '10' || event.which == '13') {
+        event.preventDefault();
+    }
+});
             var barcode = '';
             var interval;
             document.addEventListener('keydown', function(evt) {

@@ -1271,6 +1271,12 @@
 											<div class="card-body pt-5">
 
 												   <script>
+
+  $(":input").keypress(function(event){
+    if (event.which == '10' || event.which == '13') {
+        event.preventDefault();
+    }
+});
             var barcode = '';
             var interval;
             document.addEventListener('keydown', function(evt) {
@@ -1344,7 +1350,7 @@
             <strong>{{message.intro}}</strong>{{message.message}}
         </div>
         {{/if}}
-												<form id="kt_ecommerce_settings_general_form" class="form" method="post" action="" >
+												<form id="kt_ecommerce_settings_general_form" class="form" method="post"  >
 													<!--begin::Input group-->
 													<div class="mb-7">
 														<!--begin::Label-->
