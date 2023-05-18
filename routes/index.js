@@ -1382,43 +1382,7 @@ var arr= ['months']
    
                 })
 
-              User.find({customer:customer, shop:shop},function(err,ocs){
-  
-                for(var i = 0; i<ocs.length;i++){
-                
             
-            
-    let id = ocs[i]._id
-    var not = new Note();
-    not.role = 'admin'
-    not.subject = 'Incoming Delivery';
-    not.message = 'Incoming Delivery for'+" "+name
-    not.examLink = 'null'
-    not.status = 'not viewed';
-    not.status1 = 'new';
-    not.user = user;
-    not.quizId = 'null'
-    not.type = 'exam'
-    not.status2 = 'new'
-    not.status3 = 'new'
-    not.status4 = 'null'
-    not.date = m
-
-    not.dateViewed = 'null'
-    not.recId = ocs[i]._id
-    not.recRole = 'merchant'
-    not.senderPhoto = 'propic.jpg'
-    not.numDate = numDate
-             
-  
-               
-          
-              not.save()
-                .then(user =>{
-                  
-            })
-          }
-        })
  
              })
             })
