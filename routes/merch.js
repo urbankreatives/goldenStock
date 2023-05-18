@@ -79,10 +79,10 @@ router.get('/deliveries',isLoggedIn,function(req,res){
                 arr.push(flocs[i])
               }
            
-    Dispatch.find({shop:shop, customer:customer,status:'Pending'},(err, docs) => {
+    Dispatch.find({shop:shop, customer:customer,status:'Pending'},(err, mocs) => {
         if (!err) {
             res.render("merchant/list", {
-               listX:docs, pro:pro,list:arr, les:les
+               listX:mocs, pro:pro,list:arr, les:les
               
             });
         }
