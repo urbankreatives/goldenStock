@@ -426,7 +426,7 @@ var button7 = document.getElementById('myChart7tab').addEventListener('click', f
       var name = id+uid
       document.getElementById(id).id = name*/
       
-      let customer = 'Born Marche'
+      let customer = 'Bon Marche'
       
     
       let date = document.getElementById('dateCS').textContent

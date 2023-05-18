@@ -42,17 +42,57 @@ router.get('/deliveries',isLoggedIn,function(req,res){
     const arr = []
   const m = moment();
     var id =req.user._id
+
+   
+      
+            console.log(req.user._id)
+            console.log(req.user.email)
+              Note.find({recId:req.user._id},function(err,docs){
+                console.log(docs,'docs')
+             for(var i = 0;i<docs.length;i++){
+      
+             
+               let date = docs[i].date
+               let id = docs[i]._id
+               let timeX = moment(date)
+               let timeX2 =timeX.fromNow()
+               console.log(timeX2,'timex2')
+      
+               Note.findByIdAndUpdate(id,{$set:{status4:timeX2}},function(err,locs){
+      
+               
+               
+              // Format relative time using negative value (-1).
+      
+                
+              })
+            }
+      
+            Note.find({recId:req.user._id,status1:'new'},function(err,flocs){
+              var les 
            
-    Dispatch.find({shop:shop, customer:customer,status:'Pending'},(err, docs) => {
+              Note.find({recId:req.user._id,status:'not viewed'},function(err,jocs){
+               les = jocs.length > 0
+            
+              for(var i = flocs.length - 1; i>=0; i--){
+          
+                arr.push(flocs[i])
+              }
+           
+    Dispatch.find({shop:shop, customer:customer,status:'Pending'},(err, mocs) => {
         if (!err) {
             res.render("merchant/list", {
-               listX:docs, pro:pro,list:arr,
+               listX:mocs, pro:pro,list:arr, les:les
               
             });
         }
     });
 
+})
+              
+})
 
+})
 
 
 
