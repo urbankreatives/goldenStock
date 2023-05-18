@@ -1032,6 +1032,10 @@
             var barcode = '';
             var interval;
             document.addEventListener('keydown', function(evt) {
+
+				   if (evt.which == '10' || evt.which == '13') {
+        evt.preventDefault();
+    }
                 if (interval)
                     clearInterval(interval);
                 if (evt.code == 'Enter') {
