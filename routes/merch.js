@@ -46,7 +46,7 @@ router.get('/deliveries',isLoggedIn,function(req,res){
     Dispatch.find({shop:shop, customer:customer,status:'Pending'},(err, docs) => {
         if (!err) {
             res.render("merchant/list", {
-               listX:docs, pro:pro,list:arr, les:les
+               listX:docs, pro:pro,list:arr,
               
             });
         }
