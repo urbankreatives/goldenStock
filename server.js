@@ -19,8 +19,8 @@ var passport = require('passport');
 
 var indexRoute= require('./routes/index')
 var merchRoute= require('./routes/merch')
-
-
+var recRoute = require('./routes/rec')
+var disRoute = require('./routes/disp')
 
 
 
@@ -71,7 +71,8 @@ app.use(function(req, res, next) {
 
 app.use('/', indexRoute);
 app.use('/merch', merchRoute);
-
+app.use('/rec', recRoute);
+app.use('/ship', disRoute);
 
 
 

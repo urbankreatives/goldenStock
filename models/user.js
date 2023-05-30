@@ -8,11 +8,15 @@ var userSchema = new Schema({
     num: {type: Number, required: true},
     role:{type:String,required:true},
     photo:{type:String,required:true},
-  
+    photo2:{type:String,required:true},
+    username:{type:String,required:true},
+   status:{type:String,required:true},
+    userId:{type:String,required:true},
     fullname:{type:String, required:true},
     autoCustomer:{type:String, required:true},
     customer:{type:String, required:true},
     shop:{type:String, required:true},
+    merch:{type:String, required:true},
     msgId:{type:String, required:true},
     mobile:{type:String, required:true},
     password: {type: String, required: true}

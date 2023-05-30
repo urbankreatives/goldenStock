@@ -23,6 +23,9 @@ var schema = new Schema({
     dateReceivedValue:{type:String, required:true},
     rate: {type: Number, required: true},
     zwl: {type: Number, required: true},
+    mformat: {type: String, required: true},
+    month: {type: String, required: true},
+    year: {type: String, required: true},
     price: {type: Number, required: true},
 });
 

@@ -173,7 +173,7 @@
 					
 					<div data-kt-menu-trigger="click" class="menu-item menu-accordion">
 									<div class="menu-item">
-										<a class="menu-link" href="/merch/verify">
+										<a class="menu-link" href="/merch/stockChange">
 											<span class="menu-icon">
 												<!--begin::Svg Icon | path: icons/duotune/general/gen014.svg-->
 												<span class="svg-icon svg-icon-2">
@@ -187,7 +187,7 @@
 												</span>
 												<!--end::Svg Icon-->
 											</span>
-											<span class="menu-title">Check Stock</span>
+											<span class="menu-title">Verify Stock</span>
 										</a>
 									</div>
 								
@@ -461,7 +461,7 @@
 
 <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
 														<div class="menu-item">
-															<a class="menu-link" href="/merch/verify">
+															<a class="menu-link" href="/merch/stockChange">
 																<span class="menu-icon">
 																	<!--begin::Svg Icon | path: icons/duotune/general/gen014.svg-->
 																	<span class="svg-icon svg-icon-2">
@@ -687,7 +687,7 @@
 	
 
 														$.ajax({
-    url: '/records/not/'+id,
+    url: '/merch/not/'+id,
     type: 'POST',
     contentType: "application/json",
 	
@@ -744,7 +744,7 @@
 																<span class="w-70px badge badge-light-success me-4">{{this.role}}</span>
 																<!--end::Code-->
 																<!--begin::Title-->
-																<a href="/records/notify/{{this._id}}" class="text-gray-800 text-hover-primary fw-bold">{{this.subject}}</a>
+																<a href="#" class="text-gray-800 text-hover-primary fw-bold">{{this.subject}}</a>
 
 															
 																<!--end::Title-->
@@ -766,7 +766,7 @@
 											
 													<!--begin::View more-->
 													<div class="py-3 text-center border-top">
-														<a href="/records/nList" class="btn btn-color-gray-600 btn-active-color-primary">View All
+														<a href="#" class="btn btn-color-gray-600 btn-active-color-primary">View All
 														<!--begin::Svg Icon | path: icons/duotune/arrows/arr064.svg-->
 														<span class="svg-icon svg-icon-5">
 															<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -795,7 +795,7 @@
 										<!--begin::Menu wrapper-->
 										<div class="btn btn-icon btn-icon-muted btn-active-light btn-active-color-primary w-30px h-30px w-md-40px h-md-40px position-relative" id="kt_drawer_chat_toggle" onclick="msgClick('{{pro._id}}')">
 											<!--begin::Svg Icon | path: icons/duotune/communication/com012.svg-->
-											<a href="/records/msgX" class="svg-icon svg-icon-1">
+											<a href="/merch/msgX" class="svg-icon svg-icon-1">
 												<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
 													<path opacity="0.3" d="M20 3H4C2.89543 3 2 3.89543 2 5V16C2 17.1046 2.89543 18 4 18H4.5C5.05228 18 5.5 18.4477 5.5 19V21.5052C5.5 22.1441 6.21212 22.5253 6.74376 22.1708L11.4885 19.0077C12.4741 18.3506 13.6321 18 14.8167 18H20C21.1046 18 22 17.1046 22 16V5C22 3.89543 21.1046 3 20 3Z" fill="black" />
 													<rect x="6" y="12" width="7" height="2" rx="1" fill="black" />
@@ -820,7 +820,7 @@
 
 												
 														$.ajax({
-    url: '/records/msg/'+id,
+    url: '/merch/msg/'+id,
     type: 'POST',
     contentType: "application/json",
 	
@@ -889,7 +889,7 @@
 											<!--end::Menu separator-->
 											<!--begin::Menu item-->
 											<div class="menu-item px-5">
-												<a href="/records/profile" class="menu-link px-5">My Profile</a>
+												<a href="/merch/profile" class="menu-link px-5">My Profile</a>
 											</div>
 											<!--end::Menu item-->
 											<!--begin::Menu item-->

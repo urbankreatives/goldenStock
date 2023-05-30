@@ -173,7 +173,7 @@
 					
 					<div data-kt-menu-trigger="click" class="menu-item menu-accordion">
 									<div class="menu-item">
-										<a class="menu-link" href="/merch/verify">
+										<a class="menu-link" href="/merch/stockChange">
 											<span class="menu-icon">
 												<!--begin::Svg Icon | path: icons/duotune/general/gen014.svg-->
 												<span class="svg-icon svg-icon-2">
@@ -187,7 +187,7 @@
 												</span>
 												<!--end::Svg Icon-->
 											</span>
-											<span class="menu-title">Check Stock</span>
+											<span class="menu-title">Verify Stock</span>
 										</a>
 									</div>
 								
@@ -461,7 +461,7 @@
 
 <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
 														<div class="menu-item">
-															<a class="menu-link" href="/merch/verify">
+															<a class="menu-link" href="/merch/stockChange">
 																<span class="menu-icon">
 																	<!--begin::Svg Icon | path: icons/duotune/general/gen014.svg-->
 																	<span class="svg-icon svg-icon-2">
@@ -1382,6 +1382,7 @@
 															</a>
 														</div>
 														<!--end::Avatar-->
+														<input type="hidden" name="" id="idC" value="{{this._id}}">
 														<!--begin::User details-->
 														<div class="d-flex flex-column">
 	
@@ -1405,7 +1406,7 @@
 													</td>
 													<!--end::Two step=-->
 													<!--begin::Joined-->
-													<td>{{this.quantityDispatched}}</td>
+													<td id="{{this._id}}">{{this.quantityDispatched}}</td>
 													<!--begin::Joined-->
 													<!--begin::Action=-->
 													<td class="text-end">
@@ -1443,6 +1444,10 @@
 											</tbody>
 											<!--end::Table body-->
 										</table>
+
+										  
+
+
 										<!--end::Table-->
 									</div>
 									<!--end::Card body-->

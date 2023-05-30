@@ -7,6 +7,7 @@ var Category = require('../models/stock');
 var nodemailer = require('nodemailer');
 var Product = require('../models/product');
 var Sales = require('../models/sales');
+var Preset = require('../models/preset');
 var ShopStock = require('../models/shopStock');
 var QStats = require('../models/qtyStats');
 var PStats = require('../models/productStats');
@@ -34,7 +35,64 @@ const JWT_KEY = "jwtactive987";
 const JWT_RESET_KEY = "jwtreset987";
 
 
-router.get('/deliveries',isLoggedIn,function(req,res){
+router.get('/land',isLoggedIn,function(req,res){
+ var userId = req.user._id
+  Preset.find({userId:userId},function(err,docs){
+  res.render('product/steps3',{arr:docs})
+
+  })
+})      
+
+
+
+router.post('/land',isLoggedIn,  function(req,res){
+var shop = req.body.shop;
+var customer = req.body.customer
+var id = req.user._id
+var merchandiser = req.user.fullname
+
+
+
+req.check('shop','Enter Name of Shop').notEmpty();
+req.check('customer','Enter Customer').notEmpty();
+
+
+
+var errors = req.validationErrors();
+
+if (errors) {
+req.session.errors = errors;
+req.session.success = false;
+res.render('product/steps3',{ errors:req.session.errors})
+
+}
+
+else 
+
+Preset.findOne({'merchandiser':merchandiser,'customer':customer,'shop':shop})
+.then(grower =>{
+
+if(grower){
+
+
+ 
+        User.findByIdAndUpdate(id,{$set:{customer:customer,shop:shop,status:'activated'}}, function(err,coc){
+      
+       
+})
+
+}
+res.redirect('/merch/deliveries')
+
+
+})
+
+
+})
+
+
+
+router.get('/deliveries',isLoggedIn, activate,function(req,res){
     var shop = req.user.shop
     var customer = req.user.customer
 
@@ -101,7 +159,7 @@ router.get('/deliveries',isLoggedIn,function(req,res){
 
 
 //update subject
-router.get('/deliveries/:id',function(req,res){
+router.get('/deliveries/:id', activate,function(req,res){
     var pro = req.user
  Dispatch.findById(req.params.id, (err, doc) => {
    if (!err) {
@@ -121,7 +179,7 @@ router.get('/deliveries/:id',function(req,res){
 })
 
 
-router.post('/deliveries/:id',isLoggedIn,   (req, res) => {
+router.post('/deliveries/:id',isLoggedIn, activate,  (req, res) => {
  var pro = req.user
  var m = moment()
  var fullname = req.user.fullname
@@ -191,6 +249,9 @@ else
                     pass.category= category;
                     pass.date = date
                     pass.dateValue = dateValue
+                    pass.updateDate='null'
+                    pass.updateDateValue = 0
+                    pass.stockUpdate = 'no'
                     pass.openingQuantity=quantityReceived;
                     pass.currentQuantity = quantityReceived;
                     pass.receiver = fullname;
@@ -233,10 +294,27 @@ res.redirect('/merch/deliveries')
 
 
 
+router.post('/inlineX/:id',function(req,res){
+  var org = req.body.code
+  console.log(org,'org')
+  var id = req.params.id
+  var arr = ['win','win']
+  let reg = /\d+\.*\d*/g;
+
+  let result = org.match(reg)
+  let code = Number(result)
+
+  Dispatch.findByIdAndUpdate(id,{$set:{quantity:code}},function(err,docs){
+
+   
+  })
+
+  res.send(arr)
+
+})
 
 
-
-
+/*
 router.get('/update',isLoggedIn,function(req,res){
     var shop = req.user.shop
     var customer = req.user.customer
@@ -254,10 +332,11 @@ var customer = req.body.customer
 var productName = req.body.name
 var category = req.body.category
 var quan = req.body.quantity
+var mformat = m.format("L")
 var barcodeNumber = req.body.barcodeNumber
 console.log(barcodeNumber,'barcodeNumber')
 console.log(quan,'quantity')
-let reg = /\d+\.*\d*/g;
+;
 
 let result = quan.match(reg)
 let currentStock = Number(result)
@@ -303,6 +382,7 @@ sale.date = date
 sale.dateValue = dateValue
 sale.customer = customer
 sale.shop = shop
+sale.mformat = mformat
 sale.price =0
 sale.openingStock =oldStock
 sale.newStock = currentStock
@@ -321,15 +401,153 @@ res.redirect('/merch/update')
 
 
 
+})*/
+
+router.get('/update',isLoggedIn, activate,function(req,res){
+  var shop = req.user.shop
+  var customer = req.user.customer
+  var pro = req.user
+  ShopStock.find({shop:shop, customer:customer},(err, docs) => {
+      if (!err) {
+          res.render("merchant/stockUpdate", {
+             listX:docs, pro:pro
+            
+          });
+      }
+  });
+})
+
+
+router.post('/update/:id',isLoggedIn,activate,function(req,res){
+var id = req.params.id
+var pro = req.user
+var m = moment()
+var year = m.format('YYYY')
+var month = m.format('MMMM')
+var dateValue = m.valueOf()
+var mformat = m.format("L")
+var date = m.toString()
+var quan = req.body.code
+ShopStock.findById(id,function(err,doc){
+
+  if(doc.stockUpdate == "no"){
+let customer = doc.customer
+let productName = doc.name
+let category = doc.category
+let shop = doc.shop
+let barcodeNumber = doc.barcodeNumber
+
+  let reg = /\d+\.*\d*/g;
+
+  let result = quan.match(reg)
+  let currentStock = Number(result)
+
+  ShopStock.find({barcodeNumber:barcodeNumber,shop:shop,customer:customer},function(err,docs){
+    let oldStock = docs[0].currentQuantity
+    let sales = docs[0].currentQuantity - currentStock
+    ShopStock.findByIdAndUpdate(docs[0]._id,{$set:{currentQuantity:currentStock, openingQuantity:oldStock,stockUpdate:'yes'}},function(err,locs){
+    
+    })
+    
+    
+
+var sale = new Sales()
+sale.productName = productName
+sale.category = category
+sale.barcodeNumber = barcodeNumber
+sale.qty = sales
+sale.date = date
+sale.dateValue = dateValue
+sale.customer = customer
+sale.shop = shop
+sale.mformat = mformat
+sale.price =0
+sale.year = year
+sale.month = month
+sale.openingStock =oldStock
+sale.newStock = currentStock
+sale.save()
+.then(sal =>{
+
 })
 
 
 
 
+})
+}else{
+  console.log('null')
+
+  ShopStock.findByIdAndUpdate(id,{$set:{stockUpdate:'yes'}},function(err,loc){
+
+  })
+}
+res.send(doc)
+})
+})
+
+router.get('/stockChange',isLoggedIn,activate,function(req,res){
+  var shop = req.user.shop
+  var customer = req.user.customer
+  var pro = req.user
+  var m = moment()
+var year = m.format('YYYY')
+var dateValue = m.valueOf()
+var mformat = m.format("L")
+var date = m.toString()
+var arr = []
+
+Sales.find({mformat:mformat},function(err,docs){
+  for(var i = 0; i< docs.length;i++){
+    let barcodeNumber = docs[i].barcodeNumber
+    ShopStock.find({barcodeNumber:barcodeNumber},function(err,locs){
+      if(locs){
+        arr.push(locs[0])
+      }
+    })
+  }
+  res.render("merchant/listChange", {
+    listX:arr, pro:pro
+   
+ });
+  
+})
+
+})
 
 
+router.post('/stockChange/:id',isLoggedIn,activate,function(req,res){
+  var id = req.params.id
+  var quantity = req.body.code
+  var m = moment()
+  var year = m.format('YYYY')
+  var dateValue = m.valueOf()
+  var mformat = m.format("L")
+  let reg = /\d+\.*\d*/g;
 
-router.get('/viewStock',isLoggedIn,function(req,res){
+  let result = quantity.match(reg)
+  let currentStock = Number(result)
+
+  ShopStock.findByIdAndUpdate(id,{$set:{currentQuantity:currentStock}},function(err,locs){
+    
+  })
+ShopStock.findById(id,function(err,doc){
+  let barcodeNumber = doc.barcodeNumber
+
+  Sales.find({barcodeNumber:barcodeNumber,mformat:mformat},function(err,loc){
+    let sId = loc[0]._id
+   
+    let qty = loc[0].openingStock - currentStock
+    Sales.findByIdAndUpdate(sId,{$set:{newStock:currentStock, qty:qty}},function(err,foc){
+
+    })
+  })
+})
+
+})
+
+
+router.get('/viewStock',isLoggedIn,activate,function(req,res){
     var shop = req.user.shop
     var customer = req.user.customer
     var pro = req.user
@@ -346,7 +564,7 @@ router.get('/viewStock',isLoggedIn,function(req,res){
 
 
 
-router.post('/verifyScan',function(req,res){
+router.post('/verifyScan',activate,function(req,res){
   
     var barcodeNumber = req.body.code
      Product.find({barcodeNumber:barcodeNumber},function(err,docs){
@@ -360,7 +578,7 @@ router.post('/verifyScan',function(req,res){
    })
    
 
-   router.post('/verifyScanX',function(req,res){
+   router.post('/verifyScanX',activate,function(req,res){
   
     var barcodeNumber = req.body.code
      Stock.find({barcodeNumber:barcodeNumber},function(err,docs){
@@ -372,6 +590,170 @@ router.post('/verifyScan',function(req,res){
        res.send(docs[0])
      })
    })
+
+
+
+
+   router.get('/autocompleteShop/',isLoggedIn,activate, function(req, res, next) {
+
+   
+    var regex= new RegExp(req.query["term"],'i');
+    var userId = req.user._id
+   
+    var uidFilter =Shop.find({ userId:userId,name:regex},{'name':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+  
+    
+    uidFilter.exec(function(err,data){
+   
+  
+  console.log('data',data)
+  
+  var result=[];
+  
+  if(!err){
+     if(data && data.length && data.length>0){
+       data.forEach(sub=>{
+  
+        
+     
+  
+          
+         let obj={
+           id:sub._id,
+           label: sub.name,
+  
+     
+          
+       
+  
+           
+         };
+        
+         result.push(obj);
+         console.log('object',obj.id)
+       });
+  
+     }
+   
+     res.jsonp(result);
+     console.log('Result',result)
+    }
+  
+  })
+  
+  });
+  
+  // role admin
+  //this routes autopopulates teachers info from the id selected from automplet1
+  router.post('/autoShop',isLoggedIn,activate,function(req,res){
+    var code = req.body.code
+    var userId = req.user._id
+  
+    Preset.find({userId:userId,name:code},function(err,docs){
+   if(docs == undefined){
+     res.redirect('/dash')
+   }else
+  
+      res.send(docs[0])
+    })
+  
+  
+  })
+   
+
+
+
+
+
+  router.get('/autocompleteCustomer/',isLoggedIn,activate, function(req, res, next) {
+
+   
+    var regex= new RegExp(req.query["term"],'i');
+    
+   
+    var uidFilter =Shop.find({ customer:regex},{'customer':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+  
+    
+    uidFilter.exec(function(err,data){
+   
+  
+  console.log('data',data)
+  
+  var result=[];
+  
+  if(!err){
+     if(data && data.length && data.length>0){
+       data.forEach(sub=>{
+  
+        
+     
+  
+          
+         let obj={
+           id:sub._id,
+           label: sub.customer,
+  
+     
+          
+       
+  
+           
+         };
+        
+         result.push(obj);
+         console.log('object',obj.id)
+       });
+  
+     }
+   
+     res.jsonp(result);
+     console.log('Result',result)
+    }
+  
+  })
+  
+  });
+  
+  // role admin
+  //this routes autopopulates teachers info from the id selected from automplet1
+  router.post('/autoCustomer',isLoggedIn,activate,function(req,res){
+    var code = req.body.code
+  
+  
+    Shop.find({customer:code},function(err,docs){
+   if(docs == undefined){
+     res.redirect('/dash')
+   }else
+  
+      res.send(docs[0])
+    })
+  
+  
+  })
+   
+   
+  router.post('/fill',function(req,res){
+
+    console.log(req.body.value)
+        var customer = req.body.value
+        var userId = req.user._id
+    Preset.find({userId:userId,customer:customer},function(err,docs){
+      console.log(docs,'data')
+    
+        if(docs == undefined){
+            res.redirect('/')
+           }else
+          
+             res.send(docs)
+    
+    })
+    
+    })
+    
+
+   
+   
+   
 
 function encryptPassword(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(5), null);  
@@ -388,5 +770,14 @@ function encryptPassword(password) {
       }
     }
     
+
+      
+  function activate(req,res,next){
+    if(req.user.status == 'activated'){
+      return next()
+    }
+    res.redirect('/merch/land')
+    }  
+
       
       

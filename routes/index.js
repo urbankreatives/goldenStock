@@ -6,6 +6,8 @@ var Dispatch = require('../models/dispatch');
 var Category = require('../models/stock');
 var nodemailer = require('nodemailer');
 var Product = require('../models/product');
+var SaleStats = require('../models/saleStats');
+var SaleStats2 = require('../models/saleStats2');
 var Chart = require('../models/chart')
 var Sales = require('../models/sales');
 var ShopStock = require('../models/shopStock');
@@ -17,6 +19,7 @@ var Time = require("intl-relative-time-format");
 var CStats = require('../models/categoryStats');
 var IncStats = require('../models/incomeStats');
 var Shop = require('../models/shop');
+var Preset = require('../models/preset');
 var Stock = require('../models/stock');
 var Note = require('../models/note');
 var SalesStats= require('../models/salesStats');
@@ -70,26 +73,620 @@ router.post('/', passport.authenticate('local.signin', {
   if(req.user.role == "admin"){
     res.redirect("/dash");
   }else if (req.user.role == 'merchant')
-  res.redirect('/merch/deliveries')
+  res.redirect('/merch/land')
  
 
   
 });
 
-router.get('/chartX',isLoggedIn,function(req,res){
-  res.render('product/chart')
+
+//dashboard stats
+router.get('/storeStat',function(req,res){
+  var max
+    var m = moment()
+    var year = m.format('YYYY')
+    var arr = []
+  
+    SaleStats.find({year:year}, function(err,locs){
+      console.log(locs.length,'length')
+      if(locs.length == 0){
+  var std = SaleStats();
+  std.bestSellingCustomer = 0;
+  std.bestSellingCategory = 0;
+  std.bestSellingStore = 0;
+  std.bestSellingProduct = 0;
+  std.year = year;
+  
+  
+  std.save()
+  .then(std=>{
+  
+    Sales.find({year:year},function(err,docs) {
+      // console.log(docs,'docs')
+       for(var i = 0;i<docs.length;i++){
+   
+       
+          if(arr.length > 0 && arr.find(value => value.shop == docs[i].shop)){
+                 console.log('true')
+                arr.find(value => value.shop == docs[i].shop).qty += docs[i].qty;
+           }else{
+   arr.push(docs[i])
+           }
+   
+         }
+       
+      // console.log(arr,'arr')
+      //res.send(arr)
+   max = arr[0].qty
+   let max2
+   for(var i = 0;i< arr.length;i++){
+     if(arr[i].qty >= max){
+       max = arr[i].qty
+       max2 = arr[i].shop
+     }
+   }
+   console.log(max,'max')
+   console.log(max2,'shop')
+   SaleStats.findByIdAndUpdate(std._id,{$set:{bestSellingStore:max,bestSellingStoreX:max2}},function(err,kocs){
+  
+  
+  })
+     })
+  
+     
+  
+  })
+      }else{
+        Sales.find({year:year},function(err,docs) {
+          // console.log(docs,'docs')
+           for(var i = 0;i<docs.length;i++){
+       
+           
+              if(arr.length > 0 && arr.find(value => value.shop == docs[i].shop)){
+                     console.log('true')
+                    arr.find(value => value.shop == docs[i].shop).qty += docs[i].qty;
+               }else{
+       arr.push(docs[i])
+               }
+       
+             }
+           
+          // console.log(arr,'arr')
+          //res.send(arr)
+       max = arr[0].qty
+       let max2
+       for(var i = 0;i< arr.length;i++){
+         if(arr[i].qty >= max){
+           max = arr[i].qty
+           max2 = arr[i].shop
+         }
+       }
+       console.log(max,'max')
+       console.log(max2,'shop')
+       SaleStats.findByIdAndUpdate(locs[0]._id,{$set:{bestSellingStore:max, bestSellingStoreX:max2}},function(err,kocs){
+      
+      
+      })
+         })
+        
+      }
+  res.redirect('/customerStat')
+      })
+  
+    })
+
+
+
+
+
+
+
+
+
+    router.get('/customerStat',function(req,res){
+      var max
+        var m = moment()
+        var year = m.format('YYYY')
+        var arr = []
+      
+        SaleStats.find({year:year}, function(err,locs){
+          console.log(locs.length,'length')
+          if(locs.length == 0){
+      var std = SaleStats();
+      std.bestSellingCustomer = 0;
+      std.bestSellingCategory = 0;
+      std.bestSellingStore = 0;
+      std.bestSellingProduct = 0;
+      std.year = year;
+      
+      
+      std.save()
+      .then(std=>{
+      
+        Sales.find({year:year},function(err,docs) {
+          // console.log(docs,'docs')
+           for(var i = 0;i<docs.length;i++){
+       
+           
+              if(arr.length > 0 && arr.find(value => value.customer == docs[i].customer)){
+                     console.log('true')
+                    arr.find(value => value.shop == docs[i].customer).qty += docs[i].qty;
+               }else{
+       arr.push(docs[i])
+               }
+       
+             }
+           
+          // console.log(arr,'arr')
+          //res.send(arr)
+       max = arr[0].qty
+       let max2
+       for(var i = 0;i< arr.length;i++){
+         if(arr[i].qty >= max){
+           max = arr[i].qty
+           max2 = arr[i].customer
+         }
+       }
+       console.log(max,'max')
+       console.log(max2,'shop')
+       SaleStats.findByIdAndUpdate(std._id,{$set:{bestSellingCustomer:max, bestSellingCustomerX:max2}},function(err,kocs){
+      
+      
+      })
+         })
+      
+         
+      
+      })
+          }else{
+            Sales.find({year:year},function(err,docs) {
+              // console.log(docs,'docs')
+               for(var i = 0;i<docs.length;i++){
+           
+               
+                  if(arr.length > 0 && arr.find(value => value.customer == docs[i].customer)){
+                         console.log('true')
+                        arr.find(value => value.customer == docs[i].customer).qty += docs[i].qty;
+                   }else{
+           arr.push(docs[i])
+                   }
+           
+                 }
+               
+              // console.log(arr,'arr')
+              //res.send(arr)
+           max = arr[0].qty
+           let max2
+           for(var i = 0;i< arr.length;i++){
+             if(arr[i].qty >= max){
+               max = arr[i].qty
+               max2 = arr[i].customer
+             }
+           }
+           console.log(max,'max')
+           console.log(max2,'shop')
+           SaleStats.findByIdAndUpdate(locs[0]._id,{$set:{bestSellingCustomer:max, bestSellingCustomerX:max2}},function(err,kocs){
+          
+          
+          })
+             })
+            
+          }
+          res.redirect('/categoryStat')
+          })
+      
+        })
+
+
+
+        
+    router.get('/categoryStat',function(req,res){
+      var max
+        var m = moment()
+        var year = m.format('YYYY')
+        var arr = []
+      
+        SaleStats.find({year:year}, function(err,locs){
+          console.log(locs.length,'length')
+          if(locs.length == 0){
+      var std = SaleStats();
+      std.bestSellingCustomer = 0;
+      std.bestSellingCategory = 0;
+      std.bestSellingStore = 0;
+      std.bestSellingProduct = 0;
+      std.year = year;
+      
+      
+      std.save()
+      .then(std=>{
+      
+        Sales.find({year:year},function(err,docs) {
+          // console.log(docs,'docs')
+           for(var i = 0;i<docs.length;i++){
+       
+           
+              if(arr.length > 0 && arr.find(value => value.category == docs[i].category)){
+                     console.log('true')
+                    arr.find(value => value.category == docs[i].category).qty += docs[i].qty;
+               }else{
+       arr.push(docs[i])
+               }
+       
+             }
+           
+          // console.log(arr,'arr')
+          //res.send(arr)
+       max = arr[0].qty
+       let max2
+       for(var i = 0;i< arr.length;i++){
+         if(arr[i].qty >= max){
+           max = arr[i].qty
+           max2 = arr[i].category
+         }
+       }
+       console.log(max,'max')
+       console.log(max2,'shop')
+       SaleStats.findByIdAndUpdate(std._id,{$set:{bestSellingCategory:max, bestSellingCategoryX:max2}},function(err,kocs){
+      
+      
+      })
+         })
+      
+         
+      
+      })
+          }else{
+            Sales.find({year:year},function(err,docs) {
+              // console.log(docs,'docs')
+               for(var i = 0;i<docs.length;i++){
+           
+               
+                  if(arr.length > 0 && arr.find(value => value.category == docs[i].category)){
+                         console.log('true')
+                        arr.find(value => value.category == docs[i].category).qty += docs[i].qty;
+                   }else{
+           arr.push(docs[i])
+                   }
+           
+                 }
+               
+              // console.log(arr,'arr')
+              //res.send(arr)
+           max = arr[0].qty
+           let max2
+           for(var i = 0;i< arr.length;i++){
+             if(arr[i].qty >= max){
+               max = arr[i].qty
+               max2 = arr[i].category
+             }
+           }
+           console.log(max,'max')
+           console.log(max2,'shop')
+           SaleStats.findByIdAndUpdate(locs[0]._id,{$set:{bestSellingCategory:max,bestSellingCategoryX:max2}},function(err,kocs){
+          
+          
+          })
+             })
+            
+          }
+
+          res.redirect('/productStat')
+      
+          })
+      
+        })
+
+
+
+
+
+
+
+        router.get('/productStat',function(req,res){
+          var max
+            var m = moment()
+            var year = m.format('YYYY')
+            var arr = []
+          
+            SaleStats.find({year:year}, function(err,locs){
+              console.log(locs.length,'length')
+              if(locs.length == 0){
+          var std = SaleStats();
+          std.bestSellingCustomer = 0;
+          std.bestSellingCategory = 0;
+          std.bestSellingStore = 0;
+          std.bestSellingProduct = 0;
+          std.year = year;
+          
+          
+          std.save()
+          .then(std=>{
+          
+            Sales.find({year:year},function(err,docs) {
+              // console.log(docs,'docs')
+               for(var i = 0;i<docs.length;i++){
+           
+               
+                  if(arr.length > 0 && arr.find(value => value.productName  == docs[i].productName )){
+                         console.log('true')
+                        arr.find(value => value.productName  == docs[i].productName ).qty += docs[i].qty;
+                   }else{
+           arr.push(docs[i])
+                   }
+           
+                 }
+               
+              // console.log(arr,'arr')
+              //res.send(arr)
+           max = arr[0].qty
+           let max2
+           for(var i = 0;i< arr.length;i++){
+             if(arr[i].qty >= max){
+               max = arr[i].qty
+               max2 = arr[i].productName 
+             }
+           }
+           console.log(max,'max')
+           console.log(max2,'shop')
+           SaleStats.findByIdAndUpdate(std._id,{$set:{bestSellingProduct:max,bestSellingProductX:max2}},function(err,kocs){
+          
+          
+          })
+             })
+          
+             
+          
+          })
+              }else{
+                Sales.find({year:year},function(err,docs) {
+                  // console.log(docs,'docs')
+                   for(var i = 0;i<docs.length;i++){
+               
+                   
+                      if(arr.length > 0 && arr.find(value => value.productName  == docs[i].productName )){
+                             console.log('true')
+                            arr.find(value => value.productName  == docs[i].productName ).qty += docs[i].qty;
+                       }else{
+               arr.push(docs[i])
+                       }
+               
+                     }
+                   
+                  // console.log(arr,'arr')
+                  //res.send(arr)
+               max = arr[0].qty
+               let max2
+               for(var i = 0;i< arr.length;i++){
+                 if(arr[i].qty >= max){
+                   max = arr[i].qty
+                   max2 = arr[i].productName 
+                 }
+               }
+               console.log(max,'max')
+               console.log(max2,'shop')
+               SaleStats.findByIdAndUpdate(locs[0]._id,{$set:{bestSellingProduct:max,bestSellingProductX:max2}},function(err,kocs){
+              
+              
+              })
+                 })
+                
+              }
+          res.redirect('/dash')
+              })
+          
+            })
+
+
+
+            //sales stats
+
+router.post('/dashGX1',isLoggedIn,function(req,res){
+   
+  var m = moment()
+  var year = m.format('YYYY')
+
+  SaleStats.find({year:year},function(rr,docs){
+    if(docs == undefined){
+      res.redirect('/dash')
+    }else
+
+       res.send(docs)
+  })
 })
 
-router.get('/chartAjax',isLoggedIn,function(req,res){
-  res.render('product/dashAjax')
+
+            router.post('/dashChartS2',isLoggedIn,function(req,res){
+              
+             
+              var m = moment()
+              var year = m.format('YYYY')
+              var arr = []
+             
+            
+              
+            
+            
+            
+              Sales.find({year:year},function(err,docs) {
+                for(var i = 0;i<docs.length;i++){
+            
+               
+                    
+                   if(arr.length > 0 && arr.find(value => value.month == docs[i].month)){
+                          console.log('true')
+                         arr.find(value => value.month == docs[i].month).qty += docs[i].qty;
+                    }else{
+            arr.push(docs[i])
+                    }
+            
+                
+                }
+                //console.log(arr,'arr')
+               res.send(arr)
+              })
+            
+            })
+       //store General Stores     
+       
+router.post('/dashChartStoreG',isLoggedIn,function(req,res){
+  var m = moment()
+  var year = m.format('YYYY')
+  var arr = []
+  var customer = req.body.customer
+ 
+
+  Sales.find({year:year,customer:customer},function(err,docs) {
+   // console.log(docs,'docs')
+    for(var i = 0;i<docs.length;i++){
+
+    
+       if(arr.length > 0 && arr.find(value => value.shop == docs[i].shop)){
+              console.log('true')
+             arr.find(value => value.shop == docs[i].shop).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+      
+    }
+   // console.log(arr,'arr')
+   res.send(arr)
+  })
+
 })
+
+router.post('/dashChartStoreG4',isLoggedIn,function(req,res){
+  var m = moment()
+  var year = m.format('YYYY')
+  var arr = []
+ 
+
+  Sales.find({year:year},function(err,docs) {
+   // console.log(docs,'docs')
+    for(var i = 0;i<docs.length;i++){
+
+    
+       if(arr.length > 0 && arr.find(value => value.customer == docs[i].customer)){
+              console.log('true')
+             arr.find(value => value.customer == docs[i].customer).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+      
+    }
+   // console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+router.post('/dashChartG1',isLoggedIn,function(req,res){
+
+ 
+  var m = moment()
+  var year = m.format('YYYY')
+  var arr = []
+  var id = req.user._id
+
+  
+
+
+
+  Sales.find({year:year},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+   
+        
+       if(arr.length > 0 && arr.find(value => value.month == docs[i].month)){
+              console.log('true')
+             arr.find(value => value.month == docs[i].month).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+    
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+router.post('/dashChartG2',isLoggedIn,function(req,res){
+
+ 
+  var m = moment()
+  var year = m.format('YYYY')
+  var arr = []
+  var id = req.user._id
+
+  
+
+
+
+  Sales.find({year:year},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+   
+        
+       if(arr.length > 0 && arr.find(value => value.month == docs[i].month)){
+              console.log('true')
+             arr.find(value => value.month == docs[i].month).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+    
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+//general sales stats
 router.get('/dash',isLoggedIn,function(req,res){
-  res.render('product/index')
+  var pro = req.user
+  res.render('admin/dashG',{pro:pro})
 })
 
-router.get('/dashStock',isLoggedIn,function(req,res){
-  res.render('product/chart')
+
+router.get('/productSaleStats',isLoggedIn,function(req,res){
+  var pro = req.user
+  res.render('admin/index',{pro:pro})
 })
+
+
+router.get('/yearProductStats',isLoggedIn,function(req,res){
+  var pro = req.user
+  res.render('admin/index3',{pro:pro})
+})
+
+
+router.get('/shopSaleStats',isLoggedIn,function(req,res){
+  var pro = req.user
+  res.render('admin/dashX',{pro:pro})
+})
+
+
+router.get('/shopStock',isLoggedIn,function(req,res){
+  var pro = req.user
+  res.render('admin/dashStock',{pro:pro})
+})
+
+
+router.get('/warehouseStock',isLoggedIn,function(req,res){
+  var pro = req.user
+  res.render('admin/dash6',{pro:pro})
+})
+
+
+
 
 
 router.get('/dashChartX',isLoggedIn,function(req,res){
@@ -104,9 +701,15 @@ router.get('/dashChartX',isLoggedIn,function(req,res){
   console.log(date.split('-')[0])
   var startDate = date.split('-')[0]
   var endDate = date.split('-')[1]
-   var startValue = moment(startDate).valueOf()
-   var endValue = moment(endDate).valueOf()
+   var startValueA = moment(startDate)
+   var startValueB=startValueA.subtract(1,"days");
+   var startValue = moment(startValueB).valueOf()
+
+   var endValueA = moment(endDate)
+   var endValueB = endValueA.add(1,"days");
+   var endValue= moment(endValueB).valueOf()
   console.log(startValue,endValue,'output')
+
   Sales.find({customer:customer,shop:shop},function(err,docs) {
     for(var i = 0;i<docs.length;i++){
 
@@ -183,9 +786,15 @@ router.post('/dashChart',isLoggedIn,function(req,res){
   console.log(date.split('-')[0])
   var startDate = date.split('-')[0]
   var endDate = date.split('-')[1]
-   var startValue = moment(startDate).valueOf()
-   var endValue = moment(endDate).valueOf()
+   var startValueA = moment(startDate)
+   var startValueB=startValueA.subtract(1,"days");
+   var startValue = moment(startValueB).valueOf()
+
+   var endValueA = moment(endDate)
+   var endValueB = endValueA.add(1,"days");
+   var endValue= moment(endValueB).valueOf()
   console.log(startValue,endValue,'output')
+
 
 
   Sales.find({customer:customer,shop:shop},function(err,docs) {
@@ -209,7 +818,7 @@ arr.push(docs[i])
 
 })
 
-router.post('/dashChartC',isLoggedIn,function(req,res){
+router.post('/dashChart2',isLoggedIn,function(req,res){
   var customer = req.body.customer
   var shop = req.body.shop
 
@@ -259,6 +868,278 @@ arr.push(docs[i])
 
 
 
+router.post('/dashChart3',isLoggedIn,function(req,res){
+ 
+  var category = req.body.category
+  var product = req.body.productName
+  var date = req.body.date
+  var arr = []
+  var id = req.user._id
+  let num = req.user.num
+  num++
+  
+  var m = moment(date)
+  console.log(date.split('-')[0])
+  var startDate = date.split('-')[0]
+  var endDate = date.split('-')[1]
+   var startValueA = moment(startDate)
+   var startValueB=startValueA.subtract(1,"days");
+   var startValue = moment(startValueB).valueOf()
+
+   var endValueA = moment(endDate)
+   var endValueB = endValueA.add(1,"days");
+   var endValue= moment(endValueB).valueOf()
+  console.log(startValue,endValue,'output')
+
+
+
+  Sales.find({category:category, productName:product},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+      let sdate = docs[i].dateValue
+      if(sdate >= startValue && sdate <= endValue){
+        
+       if(arr.length > 0 && arr.find(value => value.customer == docs[i].customer)){
+              console.log('true')
+             arr.find(value => value.customer== docs[i].customer).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+      }
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+
+
+
+router.post('/dashChart4',isLoggedIn,function(req,res){
+ 
+  var category = req.body.category
+ 
+  var date = req.body.date
+  var arr = []
+  var id = req.user._id
+  let num = req.user.num
+  num++
+  
+  var m = moment(date)
+  console.log(date.split('-')[0])
+  var startDate = date.split('-')[0]
+  var endDate = date.split('-')[1]
+   var startValueA = moment(startDate)
+   var startValueB=startValueA.subtract(1,"days");
+   var startValue = moment(startValueB).valueOf()
+
+   var endValueA = moment(endDate)
+   var endValueB = endValueA.add(1,"days");
+   var endValue= moment(endValueB).valueOf()
+  console.log(startValue,endValue,'output')
+
+
+  Sales.find({category:category},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+      let sdate = docs[i].dateValue
+      if(sdate >= startValue && sdate <= endValue){
+        
+       if(arr.length > 0 && arr.find(value => value.customer == docs[i].customer)){
+              console.log('true')
+             arr.find(value => value.customer== docs[i].customer).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+      }
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+
+router.post('/dashChart5',isLoggedIn,function(req,res){
+ 
+  var category = req.body.category
+  var product = req.body.product
+ 
+  var date = req.body.date
+  var arr = []
+  var id = req.user._id
+  let num = req.user.num
+  num++
+  
+  var m = moment(date)
+  console.log(date.split('-')[0])
+  var startDate = date.split('-')[0]
+  var endDate = date.split('-')[1]
+   var startValueA = moment(startDate)
+   var startValueB=startValueA.subtract(1,"days");
+   var startValue = moment(startValueB).valueOf()
+
+   var endValueA = moment(endDate)
+   var endValueB = endValueA.add(1,"days");
+   var endValue= moment(endValueB).valueOf()
+  console.log(startValue,endValue,'output')
+
+
+
+  Sales.find({category:category,product:product},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+      let sdate = docs[i].dateValue
+      if(sdate >= startValue && sdate <= endValue){
+        
+       if(arr.length > 0 && arr.find(value => value.shop == docs[i].shop)){
+              console.log('true')
+             arr.find(value => value.shop== docs[i].shop).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+      }
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+
+
+router.post('/dashChart6',isLoggedIn,function(req,res){
+ 
+  var category = req.body.category
+ 
+ 
+  var date = req.body.date
+  var arr = []
+  var id = req.user._id
+  let num = req.user.num
+  num++
+  
+  var m = moment(date)
+  console.log(date.split('-')[0])
+  var startDate = date.split('-')[0]
+  var endDate = date.split('-')[1]
+   var startValueA = moment(startDate)
+   var startValueB=startValueA.subtract(1,"days");
+   var startValue = moment(startValueB).valueOf()
+
+   var endValueA = moment(endDate)
+   var endValueB = endValueA.add(1,"days");
+   var endValue= moment(endValueB).valueOf()
+  console.log(startValue,endValue,'output')
+
+
+
+  Sales.find({category:category},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+      let sdate = docs[i].dateValue
+      if(sdate >= startValue && sdate <= endValue){
+        
+       if(arr.length > 0 && arr.find(value => value.shop == docs[i].shop)){
+              console.log('true')
+             arr.find(value => value.shop== docs[i].shop).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+      }
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+
+
+router.post('/dashChartStockX',isLoggedIn,function(req,res){
+
+   var category = req.body.category
+
+  var date = req.body.date
+  var arr = []
+  var id = req.user._id
+  let num = req.user.num
+  num++
+  
+
+
+  Stock.find({category:category},function(err,docs) {
+   // console.log(docs,'docs')
+    for(var i = 0;i<docs.length;i++){
+
+
+       if(arr.length > 0 && arr.find(value => value.name == docs[i].name)){
+              console.log('true')
+             arr.find(value => value.name == docs[i].name).quantity += docs[i].quantity;
+        }else{
+arr.push(docs[i])
+        }
+
+      
+    }
+   // console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+
+router.post('/dashChartStockXI',isLoggedIn,function(req,res){
+
+  
+
+ var date = req.body.date
+ var arr = []
+ var id = req.user._id
+ let num = req.user.num
+ num++
+ 
+
+
+ Stock.find({},function(err,docs) {
+  // console.log(docs,'docs')
+   for(var i = 0;i<docs.length;i++){
+
+
+      if(arr.length > 0 && arr.find(value => value.category == docs[i].category)){
+             console.log('true')
+            arr.find(value => value.category == docs[i].category).quantity += docs[i].quantity;
+       }else{
+arr.push(docs[i])
+       }
+
+     
+   }
+  // console.log(arr,'arr')
+  res.send(arr)
+ })
+
+})
+
+
+
+/*
+
 router.post('/dashChartCS',isLoggedIn,function(req,res){
   var customer = req.body.customer
  
@@ -304,7 +1185,143 @@ arr.push(docs[i])
   })
 
 })
+*/
 
+router.post('/dashChartStore',isLoggedIn,function(req,res){
+  var customer = req.body.customer
+   var product = req.body.product
+   var category = req.body.category
+
+  var date = req.body.date
+  var arr = []
+  var id = req.user._id
+  let num = req.user.num
+  num++
+  
+  var m = moment(date)
+  console.log(date.split('-')[0])
+  var startDate = date.split('-')[0]
+  var endDate = date.split('-')[1]
+   var startValueA = moment(startDate)
+   var startValueB=startValueA.subtract(1,"days");
+   var startValue = moment(startValueB).valueOf()
+
+   var endValueA = moment(endDate)
+   var endValueB = endValueA.add(1,"days");
+   var endValue= moment(endValueB).valueOf()
+  console.log(startValue,endValue,'output')
+
+
+  Sales.find({customer:customer,productName:product,category:category},function(err,docs) {
+   // console.log(docs,'docs')
+    for(var i = 0;i<docs.length;i++){
+
+      let sdate = docs[i].dateValue
+      if(sdate >= startValue && sdate <= endValue){
+        console.log(docs[i],'docs')
+       if(arr.length > 0 && arr.find(value => value.shop == docs[i].shop)){
+              console.log('true')
+             arr.find(value => value.shop == docs[i].shop).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+      }
+    }
+   // console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+
+router.get('/dashChartTest',function(req,res){
+ 
+
+ 
+  var arr = []
+  
+
+
+  Sales.find({customer:'Pick n Pay',productName:'Lancewood Low Mixed Fruit',  category:'yorghut', },function(err,docs) {
+   // console.log(docs,'docs')
+    for(var i = 0;i<docs.length;i++){
+
+    
+       if(arr.length > 0 && arr.find(value => value.shop == docs[i].shop)){
+              console.log('true')
+             arr.find(value => value.shop == docs[i].shop).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+      }
+    
+   // console.log(arr,'arr')
+   //res.send(arr)
+var max = arr[0].qty
+let max2
+for(var i = 0;i< arr.length;i++){
+  if(arr[i].qty >= max){
+    max = arr[i].qty
+    max2 = arr[i].shop
+  }
+}
+console.log(max,'max')
+console.log(max2,'shop')
+  })
+
+})
+
+
+router.post('/dashChartStoreX',isLoggedIn,function(req,res){
+  var customer = req.body.customer
+
+   var category = req.body.category
+
+  var date = req.body.date
+  var arr = []
+  var id = req.user._id
+  let num = req.user.num
+  num++
+  
+  var m = moment(date)
+  console.log(date.split('-')[0])
+  var startDate = date.split('-')[0]
+  var endDate = date.split('-')[1]
+   var startValueA = moment(startDate)
+   var startValueB=startValueA.subtract(1,"days");
+   var startValue = moment(startValueB).valueOf()
+
+   var endValueA = moment(endDate)
+   var endValueB = endValueA.add(1,"days");
+   var endValue= moment(endValueB).valueOf()
+  console.log(startValue,endValue,'output')
+
+
+  Sales.find({category:category,customer:customer},function(err,docs) {
+   // console.log(docs,'docs')
+    for(var i = 0;i<docs.length;i++){
+
+      let sdate = docs[i].dateValue
+      if(sdate >= startValue && sdate <= endValue){
+        console.log(docs[i],'docs')
+       if(arr.length > 0 && arr.find(value => value.shop == docs[i].shop)){
+              console.log('true')
+             arr.find(value => value.shop == docs[i].shop).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+      }
+    }
+   // console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
 
 
 router.post('/dashStockCS',isLoggedIn,function(req,res){
@@ -351,6 +1368,448 @@ arr.push(docs[i])
 
 })
 
+
+router.post('/dashChartY',isLoggedIn,function(req,res){
+  var customer = req.body.customer
+  var shop = req.body.shop
+  var category = req.body.category
+  var productName = req.body.productName
+  var m = moment()
+  var year = m.format('YYYY')
+  var arr = []
+  var id = req.user._id
+
+  
+
+
+
+  Sales.find({year:year,customer:customer,shop:shop,category:category,productName:productName},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+   
+        
+       if(arr.length > 0 && arr.find(value => value.month == docs[i].month)){
+              console.log('true')
+             arr.find(value => value.month == docs[i].month).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+    
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+
+
+router.post('/dashChartStock2',isLoggedIn,function(req,res){
+  var customer = req.body.customer
+  var product = req.body.product
+  var category = req.body.category
+
+
+  var arr = []
+  var id = req.user._id
+  let num = req.user.num
+  num++
+  
+  
+
+  ShopStock.find({category:category,name:product,customer:customer},function(err,docs) {
+   // console.log(docs,'docs')
+    for(var i = 0;i<docs.length;i++){
+
+    
+       if(arr.length > 0 && arr.find(value => value.shop == docs[i].shop)){
+              console.log('true')
+             arr.find(value => value.shop == docs[i].shop).currentQuantity += docs[i].currentQuantity;
+        }else{
+arr.push(docs[i])
+        }
+
+      
+    }
+   // console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+
+router.post('/dashStockStore',isLoggedIn,function(req,res){
+  var customer = req.body.customer
+ 
+
+
+  var arr = []
+  var id = req.user._id
+  let num = req.user.num
+  num++
+  
+  
+
+  ShopStock.find({customer:customer},function(err,docs) {
+   // console.log(docs,'docs')
+    for(var i = 0;i<docs.length;i++){
+
+    
+       if(arr.length > 0 && arr.find(value => value.shop == docs[i].shop)){
+              console.log('true')
+             arr.find(value => value.shop == docs[i].shop).currentQuantity += docs[i].currentQuantity;
+        }else{
+arr.push(docs[i])
+        }
+
+      
+    }
+   // console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+
+router.post('/dashStockStore3',isLoggedIn,function(req,res){
+  var customer = req.body.customer
+  var shop = req.body.shop
+
+
+  var arr = []
+  var id = req.user._id
+  let num = req.user.num
+  num++
+  
+  
+
+  ShopStock.find({customer:customer,shop:shop},function(err,docs) {
+   // console.log(docs,'docs')
+    for(var i = 0;i<docs.length;i++){
+
+    
+       if(arr.length > 0 && arr.find(value => value.name == docs[i].name)){
+              console.log('true')
+             arr.find(value => value.shop == docs[i].name).currentQuantity += docs[i].currentQuantity;
+        }else{
+arr.push(docs[i])
+        }
+
+      
+    }
+   // console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+router.post('/dashStockStore4',isLoggedIn,function(req,res){
+  var customer = req.body.customer
+  var category = req.body.category
+
+
+  var arr = []
+  var id = req.user._id
+  let num = req.user.num
+  num++
+  
+  
+
+  ShopStock.find({customer:customer,category:category},function(err,docs) {
+   // console.log(docs,'docs')
+    for(var i = 0;i<docs.length;i++){
+
+    
+       if(arr.length > 0 && arr.find(value => value.shop == docs[i].shop)){
+              console.log('true')
+             arr.find(value => value.shop == docs[i].shop).currentQuantity += docs[i].currentQuantity;
+        }else{
+arr.push(docs[i])
+        }
+
+      
+    }
+   // console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+router.post('/dashChartY',isLoggedIn,function(req,res){
+  var customer = req.body.customer
+  var shop = req.body.shop
+  var category = req.body.category
+  var productName = req.body.productName
+  var m = moment()
+  var year = m.format('YYYY')
+  var arr = []
+  var id = req.user._id
+
+  
+
+
+
+  Sales.find({year:year,customer:customer,shop:shop,category:category,productName:productName},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+   
+        
+       if(arr.length > 0 && arr.find(value => value.month == docs[i].month)){
+              console.log('true')
+             arr.find(value => value.month == docs[i].month).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+    
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+router.post('/dashChartY2',isLoggedIn,function(req,res){
+  var customer = req.body.customer
+  var shop = req.body.shop
+  var category = req.body.category
+
+  var m = moment()
+  var year = m.format('YYYY')
+  var arr = []
+  var id = req.user._id
+
+  
+
+
+
+  Sales.find({year:year,customer:customer,shop:shop,category:category},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+   
+        
+       if(arr.length > 0 && arr.find(value => value.month == docs[i].month)){
+              console.log('true')
+             arr.find(value => value.month == docs[i].month).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+    
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+router.post('/dashChartY5',isLoggedIn,function(req,res){
+
+  var category = req.body.category
+
+  var m = moment()
+  var year = m.format('YYYY')
+  var arr = []
+  var id = req.user._id
+
+  
+
+
+
+  Sales.find({year:year,category:category},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+   
+        
+       if(arr.length > 0 && arr.find(value => value.customer == docs[i].customer)){
+              console.log('true')
+             arr.find(value => value.customer == docs[i].customer).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+    
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+
+
+
+router.post('/dashChartY6',isLoggedIn,function(req,res){
+
+
+  var category = req.body.category
+  var productName = req.body.productName
+
+  var m = moment()
+  var year = m.format('YYYY')
+  var arr = []
+  var id = req.user._id
+
+  
+
+
+
+  Sales.find({year:year,category:category,productName:productName},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+   
+        
+       if(arr.length > 0 && arr.find(value => value.customer == docs[i].customer)){
+              console.log('true')
+             arr.find(value => value.customer == docs[i].customer).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+    
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+
+
+
+router.post('/dashChartY7',isLoggedIn,function(req,res){
+
+ 
+  var category = req.body.category
+  var productName = req.body.productName
+
+  var m = moment()
+  var year = m.format('YYYY')
+  var arr = []
+  var id = req.user._id
+
+  
+
+
+
+  Sales.find({year:year,category:category,productName:productName},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+   
+        
+       if(arr.length > 0 && arr.find(value => value.shop == docs[i].shop)){
+              console.log('true')
+             arr.find(value => value.shop == docs[i].shop).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+    
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+router.post('/dashChartY3',isLoggedIn,function(req,res){
+  var customer = req.body.customer
+  var shop = req.body.shop
+  var category = req.body.category
+  var productName = req.body.productName
+ 
+  var m = moment()
+  var year = m.format('YYYY')
+  var arr = []
+  var id = req.user._id
+
+  
+
+
+
+  Sales.find({year:year,customer:customer,shop:shop,category:category,productName:productName},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+   
+        
+       if(arr.length > 0 && arr.find(value => value.month == docs[i].month)){
+              console.log('true')
+             arr.find(value => value.month == docs[i].month).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+    
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
+
+
+
+router.post('/dashChartY4',isLoggedIn,function(req,res){
+  var customer = req.body.customer
+  var shop = req.body.shop
+  var category = req.body.category
+ 
+ 
+  var m = moment()
+  var year = m.format('YYYY')
+  var arr = []
+  var id = req.user._id
+
+  
+
+
+
+  Sales.find({year:year,customer:customer,shop:shop,category:category},function(err,docs) {
+    for(var i = 0;i<docs.length;i++){
+
+   
+        
+       if(arr.length > 0 && arr.find(value => value.month == docs[i].month)){
+              console.log('true')
+             arr.find(value => value.month == docs[i].month).qty += docs[i].qty;
+        }else{
+arr.push(docs[i])
+        }
+
+    
+    }
+    //console.log(arr,'arr')
+   res.send(arr)
+  })
+
+})
 
 
 
@@ -468,16 +1927,9 @@ router.post('/add', function(req,res){
 
 
 
-
-
-
-
-
-
-
-
 router.get('/notify',isLoggedIn, function(req,res){
-  res.render('notifs')
+var pro =req.user
+  res.render('notifs',{pro:pro})
 })
 
 router.post('/notify',isLoggedIn, function(req,res){
@@ -646,7 +2098,8 @@ router.get("/logout", (req, res) => {
 //add Shops imports
 
 router.get('/importShop',function(req,res){
-  res.render('product/importShop')
+  var pro = req.user
+  res.render('product/importShop',{pro:pro})
 })
 
 
@@ -902,13 +2355,14 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
 
 
                          router.get('/import',function(req,res){
-                          res.render('product/imports')
+                         var pro = req.user
+                          res.render('product/imports',{pro:pro})
                         })
                         
                       
                         
                         router.post('/import', upload.single('file'),  (req,res)=>{
-                         
+                         var pro = req.user
                         
                           if(!req.file){
                               req.session.message = {
@@ -921,7 +2375,7 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
                                       type:'errors',
                                       message:'Upload Excel File'
                                     }     
-                                      res.render('product/imports', {message:req.session.message
+                                      res.render('product/imports', {message:req.session.message,pro:pro
                                            
                                        }) 
                         
@@ -968,6 +2422,7 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
                       req.body.category = record.category  
                       req.body.rate = record.rate
                       req.body.quantity = record.quantity
+                      req.body.caseUnits = record.caseUnits
                       req.body.filename = record.filename  
                                  
                       
@@ -981,6 +2436,7 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
                                     req.check('category','Enter Category').notEmpty();
                                     req.check('filename','Enter Filename').notEmpty();
                                     req.check('quantity','Enter Quantity').notEmpty();
+                                    req.check('caseUnits','Enter Case Units').notEmpty();
                                     req.check('rate','Enter Rate').notEmpty();
                                    
                                  
@@ -1009,6 +2465,7 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
                                         product.rate = req.body.rate;
                                         product.category= req.body.category;
                                         product.zwl = req.body.zwl;
+                                        product.caseUnits = req.body.caseUnits
                                         product.filename = req.body.filename;
                                   
                                       
@@ -1086,97 +2543,6 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
   
 
 
-                          router.get('/viewDispatch',isLoggedIn, (req, res) => {
-                            var pro = req.user
-                            Dispatch.find({},(err, docs) => {
-                                if (!err) {
-                                    res.render("product/dispatchList", {
-                                       list:docs,pro:pro
-                                      
-                                    });
-                                }
-                            });
-                            });
-
-router.get('/addStock',isLoggedIn,function(req,res){
-  var pro = req.user
-  res.render('product/stock',{pro:pro})
-})
-
-
-router.post('/addStock',isLoggedIn, function(req,res){
-  var pro = req.user
-  var barcodeNumber = req.body.barcodeNumber;
-  var name = req.body.name;
-  var m = moment()
-  var year = m.format('YYYY')
-  var dateValue = m.valueOf()
-  var date = m.toString()
-  var receiver = req.user.fullname
-  var category = req.body.category
-  var quantity = req.body.quantity
-console.log(quantity,'qty')
-
-
-  req.check('barcodeNumber','Enter Barcode Number').notEmpty();
-  req.check('name','Enter Product Name').notEmpty();
-  req.check('quantity','Enter Quantity').notEmpty();
- 
-  
-
-  
-  
-  var errors = req.validationErrors();
-   
-  if (errors) {
-
-    req.session.errors = errors;
-    req.session.success = false;
-    res.render('product/stock',{ errors:req.session.errors,pro:pro})
-    
-  
-  }
-  else
-  var book = new Stock();
-  book.barcodeNumber = barcodeNumber
-  book.category = category
-  book.name = name
-  book.receiver = receiver;
-  book.date  = date
-  book.dateValue = dateValue
-  book.quantity = quantity
-  book.rate = 0
-  book.zwl = 0
-  book.price = 0
-      
-       
-        book.save()
-          .then(pro =>{
-
-            Product.find({barcodeNumber:barcodeNumber},function(err,docs){
-             let id = docs[0]._id
-              
-             nqty = pro.quantity + docs[0].quantity
-             console.log(nqty,'nqty')
-             Product.findByIdAndUpdate(id,{$set:{quantity:nqty}},function(err,nocs){
-
-             })
-
-            })
-          
-          /*  req.session.message = {
-              type:'success',
-              message:'Product added'
-            }  
-            res.render('product/stock',{message:req.session.message,pro:pro});*/
-          
-        
-        })
-res.redirect('/addStock')
-
-})
-
-
 router.get('/search',isLoggedIn,function(req,res){
   res.render('product/search')
 })
@@ -1247,6 +2613,7 @@ console.log(customer, shop, category,product,date,'output')
 
 
 router.post('/viewSales',isLoggedIn,function(req,res){
+  var pro =req.user
   var customer = req.body.customer
   var shop = req.body.shop
   var category = req.body.category
@@ -1270,7 +2637,7 @@ arr.push(docs[i])
     }
     console.log(arr,'arr')
         res.render("product/sales", {
-           list:arr,
+           list:arr,pro:pro
           
         });
    
@@ -1287,154 +2654,6 @@ arr.push(docs[i])
 
 
 
-
-
-router.get('/dispatch',isLoggedIn,function(req,res){
-  var pro = req.user
-  res.render('product/dispatch',{pro:pro})
-})
-
-
-router.post('/dispatch',isLoggedIn, function(req,res){
-  var pro = req.user
-  var barcodeNumber = req.body.barcodeNumber;
-  var name = req.body.name;
-  var m = moment()
-  var year = m.format('YYYY')
-  var dateValue = m.valueOf()
-  var date = m.toString()
-  var dispatcher = req.user.fullname
-  var category = req.body.category
-  var quantity = req.body.quantity
-  var dispatchedQty = req.body.dispatchedQty
-  var shop = req.body.shopName
-  var customer = req.body.customer
-  var user = req.user.role
-var numDate = m.valueOf()
-var arr= ['months']
-
-
-  req.check('barcodeNumber','Enter Barcode Number').notEmpty();
-  req.check('name','Enter Product Name').notEmpty();
-  req.check('quantity','Enter Quantity').notEmpty();
-  req.check('dispatchedQty','Enter Quantity To Be Dispatched').notEmpty();
- 
-  
-
-  
-  
-  var errors = req.validationErrors();
-   
-  if (errors) {
-
-    req.session.errors = errors;
-    req.session.success = false;
-    res.render('product/dispatch',{ errors:req.session.errors,pro:pro})
-    
-  
-  }
-  else{
-
-  var book = new Dispatch();
-  book.barcodeNumber = barcodeNumber
-  book.category = category
-  book.name = name
-  book.customer = customer
-  book.quantity = quantity
-  book.quantityDispatched = dispatchedQty
-  book.dispatcher = dispatcher
-  book.status ='Pending'
-  book.status2 = 'Confirm Delivery'
-  book.status3 = 'No'
-  book.shop = shop
-  book.qtyReceived = 0
-  book.quantityVariance = 0
-  book.dateDispatched = date
-  book.dateDispatchedValue = dateValue
-  book.dateReceived = 'null'
-  book.dateReceivedValue = 'null'
-  book.receiver = 'null'
-  book.rate = 0
-  book.zwl = 0
-  book.price = 0
-      
-       
-        book.save()
-          .then(pro =>{
-
-
-            Stock.find({barcodeNumber:barcodeNumber},function(err,docs){
-              let id = docs[0]._id
-               
-              nqty =  docs[0].quantity - pro.quantityDispatched 
-              console.log(nqty,'nqty')
-              Stock.findByIdAndUpdate(id,{$set:{quantity:nqty}},function(err,nocs){
- 
-              })
-
-
-              Product.find({barcodeNumber:barcodeNumber},function(err,focs){
-                let idN = focs[0]._id
-                 
-                rqty =  docs[0].quantity - pro.quantityDispatched 
-               
-                Product.findByIdAndUpdate(idN,{$set:{quantity:rqty}},function(err,vocs){
-   
-                })
-
-              User.find({customer:customer, shop:shop},function(err,ocs){
-  
-                for(var i = 0; i<ocs.length;i++){
-                
-            
-            
-    let id = ocs[i]._id
-    var not = new Note();
-    not.role = 'admin'
-    not.subject = 'Incoming Delivery';
-    not.message = 'Incoming Delivery for'+" "+name
-    not.examLink = 'null'
-    not.status = 'not viewed';
-    not.status1 = 'new';
-    not.user = user;
-    not.quizId = 'null'
-    not.type = 'exam'
-    not.status2 = 'new'
-    not.status3 = 'new'
-    not.status4 = 'null'
-    not.date = m
-
-    not.dateViewed = 'null'
-    not.recId = ocs[i]._id
-    not.recRole = 'merchant'
-    not.senderPhoto = 'propic.jpg'
-    not.numDate = numDate
-             
-  
-               
-          
-              not.save()
-                .then(user =>{
-                  
-            })
-          }
-        })
- 
-             })
-            })
-          
-          /*  req.session.message = {
-              type:'success',
-              message:'Product added'
-            }  
-            res.render('product/dispatch',{message:req.session.message,pro:pro});*/
-          
-        
-        })
-      }
-res.redirect('/dispatch')
-
-})
 
 
 
@@ -1676,80 +2895,509 @@ let message = tocs[0].message
 
 
 
+//enter grower bales for contracted growers
+router.get('/merchPreset',isLoggedIn,  function(req,res){
+  var pro = req.user
+  res.render('product/batch',{pro:pro})
+  })
+  
+  
+  
+  
 
-      router.get('/autocompleteXN/', function(req, res, next) {
-        var code
+  router.get('/view2',isLoggedIn,function(req,res){
+    var pro = req.user
+    res.render("barcode/listing", {
+    pro:pro
+     
+   });
+  })
+
+ 
+  
+  router.post('/merchPreset',isLoggedIn,  function(req,res){
+  var merchandiser = req.body.merchandiser;
+  var customer = req.body.customer
+  var photo = req.body.photo
+  var id = req.user._id
+  var userId = req.body.id
+  var pro = req.user
+  var email = req.body.email
+  
+  
+  req.check('merchandiser','Enter Name of Merchandiser').notEmpty();
+  req.check('customer','Enter Customer').notEmpty();
+  
+
+  
+  var errors = req.validationErrors();
+   
+  if (errors) {
+    req.session.errors = errors;
+    req.session.success = false;
+    res.render('product/batch',{ errors:req.session.errors,pro:pro})
+  
+  }
+  
+  else 
+  
+  User.findOne({'merchandiser':merchandiser})
+  .then(grower =>{
+  
     
-          var regex= new RegExp(req.query["term"],'i');
-         
-          var bookFilter =Book.find({},{'title':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
-        
+     
+            User.findByIdAndUpdate(id,{$set:{customer:customer,merch:merchandiser,userId:userId,photo2:photo,username:email}}, function(err,coc){
           
-          bookFilter.exec(function(err,data){
-         
-       
-        console.log('data',data)
         
-        var result=[];
-        
-        if(!err){
-           if(data && data.length && data.length>0){
-             data.forEach(book=>{
-       
-              
-           
-        
-                
-               let obj={
-                 id:book._id,
-                 label: book.title
+    })
+    res.redirect('/set')
+  
+  
+  })
+  
+  
+  })
+
+
+  // buying from contracted farmers
+router.get('/set',isLoggedIn, function(req,res){
+  var pro = req.user
+  var id = req.user._id;
+
+ User.findById(id,function(err,locs){
+
+
+    if(locs.merch == 'null'){
+      res.redirect('/merchPreset')
+    }else
+    var merch =locs.merch
+    var customer = locs.customer
+  
+  res.render('product/addShop',{merch:merch,customer:customer,pro:pro})
+ 
+  })
+  })
+  
+  
+
+
+
+  router.post('/set',isLoggedIn, function(req,res){
+  var merchandiser = req.body.merchandiser
+  var customer = req.body.customer
+  var shop  = req.body.shop
+  var userId = req.user.userId
+  var pro = req.user
+  var photo = req.user.photo2
+  var username = req.user.username
+
+  var m = moment()
+  var year = m.format('YYYY')
+  var dateValue = m.valueOf()
+
+
+var date = m.format('L')
+    req.check('merchandiser','Enter Merchandiser').notEmpty();
+    req.check('customer','Enter Customer').notEmpty();
+    req.check('shop','Enter Shop').notEmpty();
+   
+    
+  
+    
+    
+    var errors = req.validationErrors();
+     
+    if (errors) {
+  
+      req.session.errors = errors;
+      req.session.success = false;
+      res.render('product/addShop',{ errors:req.session.errors,pro:pro})
       
-             
-           
-             
-               
-                
+    
+    }
+    else{
+
+    var book = new Preset();
+    book.merchandiser = merchandiser
+    book.customer = customer
+    book.shop = shop
+    book.dateAdded = date
+    book.dateModified= date
+    book.photo = photo
+    book.username=username
+    book.userId = userId
+
         
-                 
-               };
-              
-               result.push(obj);
+         
+          book.save()
+            .then(pro =>{
+  
+           
             
            
-             });
-        
-           }
-         
-           res.jsonp(result);
-      
-          }
-        
-        })
-       
-        });
-      
-      //role admin
-    //this route autopopulates info of the title selected from the autompleteX route
-        router.post('/autoXN',function(req,res){
-            var code = req.body.code
-    
-        
             
-           
-            Book.find({title:code},function(err,docs){
-           if(docs == undefined){
-             res.redirect('/')
-           }else
-          
-              res.send(docs[0])
-            })
-          
           
           })
+        }
+  res.redirect('/set')
+  
+  })
+
+
+  router.get('/merchPreset/:id',function(req,res){
+    var pro = req.user
+    var successMsg = req.flash('success')[0];
+ Preset.findById(req.params.id, (err, doc) => {
+   if (!err) {
+   
+       res.render("product/update", {
+          
+           doc: doc,pro:pro,successMsg: successMsg, noMessages: !successMsg
+         
+           
+       });
+     
+   }
+});
+
+
+  })
+
+
+
+
+
+
+  
+router.post('/merchPreset/:id',isLoggedIn,   (req, res) => {
+  var pro = req.user
+  var m = moment()
+  var fullname = req.user.fullname
+  var year = m.format('YYYY')
+  var dateValue = m.valueOf()
+
+
+
+var date = m.format('L')
+  var _id = req.params.id;
+  
+  var merchandiser = req.body.merchandiser;
+  var shop = req.body.shop
+  var customer = req.body.customer
+ 
+
+  req.check('merchandiser','Enter Merchandiser').notEmpty();
+  req.check('customer','Enter Customer').notEmpty();
+  req.check('shop','Enter Shop').notEmpty();
+
+ 
+  
+    
+  var errors = req.validationErrors();
+ 
+ 
+ 
+   if (errors) {
+  
+     
+        req.session.errors = errors;
+        req.session.success = false;
+       // res.render('product/update',{ errors:req.session.errors,pro:pro})
+      
+        req.flash('success', req.session.errors[0].msg);
+       
+        
+        res.redirect('/merchPreset/'+_id);
+    
+    }
+  
+ else
+ {
+   Shop.findOne({'customer':customer,'shop':shop})
+    .then(loc=>{
+     if(loc){
+      Preset.findOne({'customer':customer,'shop':shop})
+  .then(pre =>{
+if(!pre){
+  User.findOne({'fullname':merchandiser})
+  .then(user =>{
+
+    if(user){
+      let username= user.email
+      let photo = user.photo
+      let userId = user._id
+
+
+      Preset.findByIdAndUpdate(_id,{$set:{merchandiser:merchandiser,userId:userId,shop:shop,customer:customer,photo:photo, username:username, dateModified:date }},function(err,docs){
+
+      })
+
+
+    }
+  
+
+  })
+}
+else{
+  console.log('ma1')
+  req.flash('success', 'User Does Not Exist!');
+ 
+  req.session.cart = null;
+  res.redirect('/merchPreset/'+_id);
+ //res.render('product/update',{}) 
+}
+})
+     }
+     else{
+      console.log('ma1')
+      req.flash('success', 'Customer Or Shop Does Not Exist!');
+     
+      req.session.cart = null;
+      res.redirect('/merchPreset/'+_id);
+     //res.render('product/update',{}) 
+    }
+   })
+ 
+ 
+  
+
+ 
+
+ 
+ res.redirect('/merchPreset')
+    
+ }
+
+ 
+ });
+ 
+
+
+ router.get('/viewAllocations',isLoggedIn,function(req,res){
+  var pro = req.user
+ Preset.find({},(err, docs) => {
+      if (!err) {
+          res.render("barcode/listing", {
+             list:docs,pro:pro
+            
+          });
+      }
+  });
+})
+
+ 
+
+     //role admin
+   //this routes autocompletes the fullname of the teacher to be allocated a lesson
+   router.get('/autocompleteUser/',isLoggedIn, function(req, res, next) {
+
+   
+     var regex= new RegExp(req.query["term"],'i');
+    
+     var uidFilter =User.find({ fullname:regex},{'fullname':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+   
+     
+     uidFilter.exec(function(err,data){
+    
+   
+   console.log('data',data)
+   
+   var result=[];
+   
+   if(!err){
+      if(data && data.length && data.length>0){
+        data.forEach(sub=>{
+   
+         
+      
+   
+           
+          let obj={
+            id:sub._id,
+            label: sub.fullname,
+   
+        
+          /*  name:name,
+            surname:surname,
+            batch:batch*/
+           
+           
+        
+          
+           
+   
+            
+          };
+         
+          result.push(obj);
+          console.log('object',obj.id)
+        });
+   
+      }
+    
+      res.jsonp(result);
+      console.log('Result',result)
+     }
+   
+   })
+   
+   });
+   
+   // role admin
+   //this routes autopopulates teachers info from the id selected from automplet1
+   router.post('/autoUser',isLoggedIn,function(req,res){
+     var code = req.body.code
+   
+   
+     User.find({fullname:code},function(err,docs){
+    if(docs == undefined){
+      res.redirect('/dash')
+    }else
+   
+       res.send(docs[0])
+     })
+   
+   
+   })
+   
+   //////////////////
+   router.get('/autocompleteShop/',isLoggedIn, function(req, res, next) {
+
+   
+    var regex= new RegExp(req.query["term"],'i');
+    var customer = req.user.customer
+   
+    var uidFilter =Shop.find({ customer:customer,name:regex},{'name':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+  
+    
+    uidFilter.exec(function(err,data){
+   
+  
+  console.log('data',data)
+  
+  var result=[];
+  
+  if(!err){
+     if(data && data.length && data.length>0){
+       data.forEach(sub=>{
+  
+        
+     
+  
+          
+         let obj={
+           id:sub._id,
+           label: sub.name,
+  
      
           
-    
+       
+  
+           
+         };
+        
+         result.push(obj);
+         console.log('object',obj.id)
+       });
+  
+     }
+   
+     res.jsonp(result);
+     console.log('Result',result)
+    }
+  
+  })
+  
+  });
+  
+  // role admin
+  //this routes autopopulates teachers info from the id selected from automplet1
+  router.post('/autoShop',isLoggedIn,function(req,res){
+    var code = req.body.code
+  
+  
+    Shop.find({name:code},function(err,docs){
+   if(docs == undefined){
+     res.redirect('/dash')
+   }else
+  
+      res.send(docs[0])
+    })
+  
+  
+  })
+   
 
+
+
+
+
+  router.get('/autocompleteCustomer/',isLoggedIn, function(req, res, next) {
+
+   
+    var regex= new RegExp(req.query["term"],'i');
+    
+   
+    var uidFilter =Shop.find({ customer:regex},{'customer':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+  
+    
+    uidFilter.exec(function(err,data){
+   
+  
+  console.log('data',data)
+  
+  var result=[];
+  
+  if(!err){
+     if(data && data.length && data.length>0){
+       data.forEach(sub=>{
+  
+        
+     
+  
+          
+         let obj={
+           id:sub._id,
+           label: sub.customer,
+  
+     
+          
+       
+  
+           
+         };
+        
+         result.push(obj);
+         console.log('object',obj.id)
+       });
+  
+     }
+   
+     res.jsonp(result);
+     console.log('Result',result)
+    }
+  
+  })
+  
+  });
+  
+  // role admin
+  //this routes autopopulates teachers info from the id selected from automplet1
+  router.post('/autoCustomer',isLoggedIn,function(req,res){
+    var code = req.body.code
+  
+  
+    Shop.find({customer:code},function(err,docs){
+   if(docs == undefined){
+     res.redirect('/dash')
+   }else
+  
+      res.send(docs[0])
+    })
+  
+  
+  })
+   
 
          
 
