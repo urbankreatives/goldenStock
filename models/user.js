@@ -17,8 +17,7 @@ var userSchema = new Schema({
     customer:{type:String, required:true},
     shop:{type:String, required:true},
     merch:{type:String, required:true},
-    msgId:{type:String, required:true},
-    mobile:{type:String, required:true},
+
     password: {type: String, required: true}
 });
 

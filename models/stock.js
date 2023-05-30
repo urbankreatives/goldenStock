@@ -11,6 +11,8 @@ var schema = new Schema({
     stockUpdate: {type: String, required: true},
     dateValue: {type: Number, required: true},
     receiver: {type: String, required: true},
+    unitCases: {type: Number, required: true},
+    cases: {type: Number, required: true},
     mformat: {type: String, required: true},
     month: {type: String, required: true},
     year: {type: String, required: true},

@@ -73,9 +73,11 @@ router.post('/', passport.authenticate('local.signin', {
   if(req.user.role == "admin"){
     res.redirect("/dash");
   }else if (req.user.role == 'merchant')
-  res.redirect('/merch/land')
- 
-
+  res.redirect('/merch/userUpdate')
+  else if(req.user.role == 'receiver')
+  res.redirect('/rec/addStock')
+  else if(req.user.role == 'dispatcher')
+  res.redirect('/ship/dispatch')
   
 });
 
@@ -628,14 +630,14 @@ router.post('/dashChartG2',isLoggedIn,function(req,res){
 
 
 
-  Sales.find({year:year},function(err,docs) {
+  ShopStock.find({year:year},function(err,docs) {
     for(var i = 0;i<docs.length;i++){
 
    
         
        if(arr.length > 0 && arr.find(value => value.month == docs[i].month)){
               console.log('true')
-             arr.find(value => value.month == docs[i].month).qty += docs[i].qty;
+             arr.find(value => value.month == docs[i].month).currentQuantity += docs[i].currentQuantity;
         }else{
 arr.push(docs[i])
         }
@@ -761,14 +763,6 @@ Chart.findByIdAndUpdate(locs[0]._id,{$set:{qty:qtyX}},function(err,koc){
     res.send(arr)
    
 });
-})
-router.get('/add',function(req,res){
-
- 
-
-    res.render('admitHb')
- 
- 
 })
 
 router.post('/dashChart',isLoggedIn,function(req,res){
@@ -1081,7 +1075,7 @@ router.post('/dashChartStockX',isLoggedIn,function(req,res){
   
 
 
-  Stock.find({category:category},function(err,docs) {
+  Product.find({category:category},function(err,docs) {
    // console.log(docs,'docs')
     for(var i = 0;i<docs.length;i++){
 
@@ -1116,7 +1110,7 @@ router.post('/dashChartStockXI',isLoggedIn,function(req,res){
  
 
 
- Stock.find({},function(err,docs) {
+ Product.find({},function(err,docs) {
   // console.log(docs,'docs')
    for(var i = 0;i<docs.length;i++){
 
@@ -1348,7 +1342,7 @@ router.post('/dashStockCS',isLoggedIn,function(req,res){
   console.log(startValue,endValue,'output')
 
 
-  Stock.find({category:customer},function(err,docs) {
+  Product.find({category:customer},function(err,docs) {
    // console.log(docs,'docs')
     for(var i = 0;i<docs.length;i++){
 
@@ -1824,6 +1818,19 @@ res.send(docs)
 
 
 })
+
+
+
+
+router.get('/add',function(req,res){
+
+ 
+
+  res.render('admitHb')
+
+
+})
+
 router.post('/add', function(req,res){
   var m = moment()
                   var year = m.format('YYYY')
@@ -1833,6 +1840,7 @@ router.post('/add', function(req,res){
                 var mobile = req.body.mobile
                 var email = req.body.email
                 var password = req.body.password
+                var role = req.body.role
                 req.check('name','Enter Name').notEmpty();
                 req.check('surname','Enter Surname').notEmpty();
               
@@ -1840,7 +1848,7 @@ router.post('/add', function(req,res){
          
                 
              
-                req.check('mobile', 'Enter Phone Number').notEmpty();
+               
                 req.check('password', 'Password do not match').isLength({min: 4}).equals(req.body.confirmPassword);
                     
                 
@@ -1852,7 +1860,7 @@ router.post('/add', function(req,res){
                     
                       req.session.errors = errors;
                       req.session.success = false;
-                      res.render('admit',{ errors:req.session.errors,})
+                      res.render('admitHb',{ errors:req.session.errors,})
                       
                     
                   }
@@ -1870,7 +1878,7 @@ router.post('/add', function(req,res){
                          message:'user id already in use'
                        }     
                        
-                          res.render('admit', {
+                          res.render('admitHb', {
                               message:req.session.message,    }) 
                        
                         
@@ -1885,15 +1893,19 @@ router.post('/add', function(req,res){
                   user.email = email;
                   user.mobile = mobile;
                   user.photo = 'propic.jpg';
-                  user.role = 'clerk';
+                  user.role = role;
                   user.num = 0
                   user.category = 'null'
-                  user.msgId = 'null'
+                  user.status = 'null'
                   user.shop = 'null'
                   user.customer = 'null'
                   user.autoCustomer='null'
 
-          
+                  user.merch = 'null'
+                  user.userId = 'null'
+                  user.photo2 = 'null'
+                  user.username = 'null'
+
                   
                   
                   user.password = user.encryptPassword(password)
@@ -1908,7 +1920,7 @@ router.post('/add', function(req,res){
                       
                 })
               }
-            
+            res.redirect('/add')
                     })
                   }
               
@@ -2354,168 +2366,7 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
 
 
 
-                         router.get('/import',function(req,res){
-                         var pro = req.user
-                          res.render('product/imports',{pro:pro})
-                        })
-                        
                       
-                        
-                        router.post('/import', upload.single('file'),  (req,res)=>{
-                         var pro = req.user
-                        
-                          if(!req.file){
-                              req.session.message = {
-                                type:'errors',
-                                message:'Select File!'
-                              }     
-                                res.render('product/imports', {message:req.session.message}) 
-                              }else if (req.file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
-                                  req.session.message = {
-                                      type:'errors',
-                                      message:'Upload Excel File'
-                                    }     
-                                      res.render('product/imports', {message:req.session.message,pro:pro
-                                           
-                                       }) 
-                        
-                        
-                        
-                              }
-                                
-                              else{
-                           
-                      
-                              
-                                  const file = req.file.filename;
-                          
-                                  
-                                       var wb =  xlsx.readFile('./public/uploads/' + file)
-                               
-                                       var sheets = wb.Sheets;
-                                       var sheetNames = wb.SheetNames;
-                           
-                                       var sheetName = wb.SheetNames[0];
-                           var sheet = wb.Sheets[sheetName ];
-                           
-                              for (var i = 0; i < wb.SheetNames.length; ++i) {
-                               var sheet = wb.Sheets[wb.SheetNames[i]];
-                           
-                               console.log(wb.SheetNames.length)
-                               var data =xlsx.utils.sheet_to_json(sheet)
-                                   
-                               var newData = data.map(async function (record){
-                           
-                              
-                             
-                            
-                                
-                               
-                      
-                      
-                                
-                      
-                      req.body.name = record.name     
-                      req.body.price = record.price  
-                      req.body.barcodeNumber = record.barcodeNumber
-                      req.body.zwl = record.zwl
-                      req.body.category = record.category  
-                      req.body.rate = record.rate
-                      req.body.quantity = record.quantity
-                      req.body.caseUnits = record.caseUnits
-                      req.body.filename = record.filename  
-                                 
-                      
-                                  
-                              
-                                  try{
-                                    req.check('price','Enter price').notEmpty();
-                                    req.check('name','Enter Name').notEmpty();
-                                    req.check('barcodeNumber','Enter Barcode Number').notEmpty();
-                                    req.check('zwl','Enter ZWL').notEmpty();
-                                    req.check('category','Enter Category').notEmpty();
-                                    req.check('filename','Enter Filename').notEmpty();
-                                    req.check('quantity','Enter Quantity').notEmpty();
-                                    req.check('caseUnits','Enter Case Units').notEmpty();
-                                    req.check('rate','Enter Rate').notEmpty();
-                                   
-                                 
-                      
-                      
-                                    var errors = req.validationErrors();
-                        
-                                    if (errors) {
-                                      
-                                      req.session.errors = errors;
-                                      req.session.success = false;
-                                      for(let x=0;x<req.session.errors.length;x++){
-                                        throw new SyntaxError(req.session.errors[x].msg +" "+"on line")
-                                      }
-                                    
-                                }
-                      
-                      
-                            
-                              
-                                var product = new Product();
-                                        product.name = req.body.name;
-                                        product.price = req.body.price
-                                        product.barcodeNumber = req.body.barcodeNumber;
-                                        product.quantity = req.body.quantity;
-                                        product.rate = req.body.rate;
-                                        product.category= req.body.category;
-                                        product.zwl = req.body.zwl;
-                                        product.caseUnits = req.body.caseUnits
-                                        product.filename = req.body.filename;
-                                  
-                                      
-                                       
-                                        product.save()
-                                          .then(productId =>{
-                      
-                                         
-                                          })
-                                   
-                                           
-                                       
-                                           
-                                         
-                                          // .catch(err => console.log(err))
-                                        }
-                                        catch(e){
-                                          res.send(e.message)
-                                         }
-                                          })
-                                        
-                                        
-                               
-                                        }
-                                        
-                                        
-                                          
-                                          
-                              
-                                         
-                              
-                                          
-                                   
-                                      }
-                            
-                              
-                        
-                        
-                        })
-                        
-                      
-                      
-                      
-                      
-                      
-                      
-                  
-
-
-
 
                          router.get('/viewStock',isLoggedIn, (req, res) => {
                           var pro = req.user
@@ -3194,7 +3045,7 @@ else{
    
      var regex= new RegExp(req.query["term"],'i');
     
-     var uidFilter =User.find({ fullname:regex},{'fullname':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+     var uidFilter =User.find({role:'merchant', fullname:regex},{'fullname':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
    
      
      uidFilter.exec(function(err,data){
@@ -3249,7 +3100,7 @@ else{
      var code = req.body.code
    
    
-     User.find({fullname:code},function(err,docs){
+     User.find({fullname:code,role:'merchant'},function(err,docs){
     if(docs == undefined){
       res.redirect('/dash')
     }else
@@ -3400,6 +3251,200 @@ else{
    
 
          
+  router.get('/import',isLoggedIn,function(req,res){
+    var pro = req.user
+        var successMsg = req.flash('success')[0];
+     res.render('product/imports',{pro:pro,successMsg: successMsg, noMessages: !successMsg})
+   })
+   
+ 
+   
+   router.post('/import', isLoggedIn,upload.single('file'),  (req,res)=>{
+    var pro = req.user
+   
+     if(!req.file){
+        /* req.session.message = {
+           type:'errors',
+           message:'Select File!'
+         }     
+           res.render('product/imports', {message:req.session.message}) */
+
+           console.log('ma1')
+           req.flash('success','Select File');
+          
+   
+           res.redirect('/import');
+         }else if (req.file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
+            /* req.session.message = {
+                 type:'errors',
+                 message:'Upload Excel File'
+               }     
+                 res.render('product/imports', {message:req.session.message,pro:pro
+                      
+                  }) */
+                  console.log('ma1')
+                  req.flash('success', 'Upload excel file');
+                 
+                
+                  res.redirect('/import');
+   
+   
+   
+         }
+           
+         else{
+      
+ 
+         
+             const file = req.file.filename;
+     
+             
+                  var wb =  xlsx.readFile('./public/uploads/' + file)
+          
+                  var sheets = wb.Sheets;
+                  var sheetNames = wb.SheetNames;
+      
+                  var sheetName = wb.SheetNames[0];
+      var sheet = wb.Sheets[sheetName ];
+      
+         for (var i = 0; i < wb.SheetNames.length; ++i) {
+          var sheet = wb.Sheets[wb.SheetNames[i]];
+      
+          console.log(wb.SheetNames.length)
+          var data =xlsx.utils.sheet_to_json(sheet)
+              
+          var newData = data.map(async function (record){
+      
+         
+        
+       
+           
+          
+ 
+ 
+           
+ 
+ req.body.name = record.name     
+ req.body.price = record.price  
+ req.body.barcodeNumber = record.barcodeNumber
+ req.body.zwl = record.zwl
+ req.body.category = record.category  
+ req.body.rate = record.rate
+ req.body.quantity = record.quantity
+ req.body.unitCases = record.unitCases
+ req.body.cases = record.cases
+ req.body.rcvdQuantity = record.rcvdQuantity
+ req.body.openingQuantity = record.openingQuantity
+
+            
+ 
+             
+         
+            // try{
+               req.check('price','Enter price').notEmpty();
+               req.check('name','Enter Name').notEmpty();
+               req.check('barcodeNumber','Enter Barcode Number').notEmpty();
+               req.check('zwl','Enter ZWL').notEmpty();
+               req.check('category','Enter Category').notEmpty();
+            
+               req.check('quantity','Enter Quantity').notEmpty();
+               req.check('unitCases','Enter Case Units').notEmpty();
+               req.check('rate','Enter Rate').notEmpty();
+              
+            
+ 
+ 
+               var errors = req.validationErrors();
+   
+               if (errors) {
+                 
+                 req.session.errors = errors;
+                 req.session.success = false;
+                 for(let x=0;x<req.session.errors.length;x++){
+                  // throw new SyntaxError(req.session.errors[x].msg +" "+"on line")
+                   req.flash('success', req.session.errors[x].msg);
+                    
+
+                   res.redirect('/import');
+                 }
+               
+           }
+ 
+ 
+       else{
+
+       
+         
+           var product = new Product();
+                   product.name = req.body.name;
+                   product.price = req.body.price
+                   product.barcodeNumber = req.body.barcodeNumber;
+                   product.quantity = req.body.quantity;
+                   product.rate = req.body.rate;
+                   product.category= req.body.category;
+                   product.zwl = req.body.zwl;
+                   product.cases = req.body.cases
+                   product.unitCases = req.body.unitCases
+                   product.rcvdQuantity = req.body.rcvdQuantity
+                   product.openingQuantity = req.body.openingQuantity
+                   
+             
+                 
+                  
+                   product.save()
+                     .then(productId =>{
+                      console.log('ma1')
+                      /*req.flash('success', 'Upload Successfull');
+                     
+         
+                      res.redirect('/import');*/
+                       
+                    
+                     })
+              
+                      
+                    
+                   }  
+                     // .catch(err => console.log(err))
+                 //  }
+                 /*  catch(e){
+                     //res.send(e.message)
+
+                  
+                    }*/
+                     })
+                   
+                    
+          
+                   }
+                   
+                   
+                     
+                     
+         
+                    
+         
+                   req.flash('success', 'Upload Successfull');
+                     
+         
+                   res.redirect('/import');                  
+              
+                 }
+       
+         
+   
+   
+   })
+   
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
 
 
 function encryptPassword(password) {

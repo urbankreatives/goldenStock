@@ -9,6 +9,7 @@ var schema = new Schema({
     openingQuantity: {type: Number, required: true},
     currentQuantity: {type: Number, required: true},
     date: {type: String, required: true},
+    cases: {type: Number, required: true},
     updateDate: {type: String, required: true},
     customer: {type: String, required: true},
     shop: {type: String, required: true},

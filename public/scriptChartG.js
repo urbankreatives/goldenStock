@@ -176,7 +176,7 @@ $.ajax({
     let labels1 =[]
 
      for (var i = 0;i<data.length;i++){
-        labels1.push(data[i].qty)
+        labels1.push(data[i].currentQuantity)
         labelsX.push(data[i].month)
    
    

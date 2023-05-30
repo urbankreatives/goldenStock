@@ -60,19 +60,21 @@ var mformat = m.format("L")
   var date = m.toString()
   var dispatcher = req.user.fullname
   var category = req.body.category
-  var quantity = req.body.quantity
-  var dispatchedQty = req.body.dispatchedQty
+  var cases = req.body.cases
+  var unitCases = req.body.unitCases
+  var casesDispatched = req.body.casesDispatched
   var shop = req.body.shopName
   var customer = req.body.customer
   var user = req.user.role
 var numDate = m.valueOf()
 var arr= ['months']
-
+console.log(unitCases,casesDispatched,'why')
+var quantity = unitCases * casesDispatched
 
   req.check('barcodeNumber','Enter Barcode Number').notEmpty();
   req.check('name','Enter Product Name').notEmpty();
-  req.check('quantity','Enter Quantity').notEmpty();
-  req.check('dispatchedQty','Enter Quantity To Be Dispatched').notEmpty();
+
+  req.check('casesDispatched','Enter Number of Cases To Be Dispatched').notEmpty();
  
   
 
@@ -95,9 +97,12 @@ var arr= ['months']
   book.category = category
   book.name = name
   book.customer = customer
-  book.quantity = quantity
-  book.quantityDispatched = dispatchedQty
+  book.quantityDispatched = quantity
+  book.cases = cases
+  book.unitCases = unitCases
+  book.casesDispatched = casesDispatched
   book.dispatcher = dispatcher
+  book.casesReceived = 0
   book.status ='Pending'
   book.status2 = 'Confirm Delivery'
   book.status3 = 'No'
@@ -134,9 +139,9 @@ var arr= ['months']
               Product.find({barcodeNumber:barcodeNumber},function(err,focs){
                 let idN = focs[0]._id
                  
-                rqty =  focs[0].quantity - pro.quantityDispatched 
-               
-                Product.findByIdAndUpdate(idN,{$set:{quantity:rqty}},function(err,vocs){
+                rqty =  focs[0].cases - pro.casesDispatched 
+               let quantity = rqty * focs[0].unitCases
+                Product.findByIdAndUpdate(idN,{$set:{cases:rqty,quantity:quantity}},function(err,vocs){
    
                 })
 
@@ -189,9 +194,9 @@ var arr= ['months']
           
         
         })
-      }
+     
 res.redirect('/ship/dispatch')
-
+}
 })
 
 
@@ -238,26 +243,32 @@ router.get('/viewDispatch',isLoggedIn, (req, res) => {
       let result = quantity.match(reg)
       let updatedQuantity = Number(result)
     
-
-
+     
+      
       Dispatch.findById(id,function(err,doc){
         let barcodeNumber = doc.barcodeNumber
-        let oldQty = doc.quantityDispatched
+        let oldQty = doc.casesDispatched
         Product.find({barcodeNumber:barcodeNumber},function(err,locs){
       //let nqty = locs[0].quantity + oldQty
-   let nqty = locs[0].quantity + oldQty
+   let nqty = locs[0].cases + oldQty
    let nqty2 = nqty - updatedQuantity
       let proId =  locs[0]._id
+let quantity = nqty2 * locs[0].unitCases
+let dispatchedQuantity = updatedQuantity * locs[0].unitCases
+          Product.findByIdAndUpdate(proId,{$set:{ cases:nqty2, quantity:quantity}},function(err,koc){
 
-          Product.findByIdAndUpdate(proId,{$set:{ quantity:nqty2}},function(err,koc){
 
+if(!err){
+  Dispatch.findByIdAndUpdate(id,{$set:{casesDispatched:updatedQuantity,quantityDispatched:dispatchedQuantity}},function(err,locs){
+        
+  })
+}
+          
           })
 
         })
       })
-      Dispatch.findByIdAndUpdate(id,{$set:{quantityDispatched:updatedQuantity}},function(err,locs){
-        
-      })
+     
     
     
     })

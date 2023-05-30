@@ -35,6 +35,20 @@ const JWT_KEY = "jwtactive987";
 const JWT_RESET_KEY = "jwtreset987";
 
 
+
+
+router.get('/userUpdate',isLoggedIn,function(req,res){
+  var id = req.user._id
+
+  
+  User.findByIdAndUpdate(id,{$set:{customer:'null',shop:'null',status:'null'}}, function(err,coc){
+      
+       
+  })
+  res.redirect('/merch/land')
+
+})
+
 router.get('/land',isLoggedIn,function(req,res){
  var userId = req.user._id
   Preset.find({userId:userId},function(err,docs){
@@ -184,7 +198,10 @@ router.post('/deliveries/:id',isLoggedIn, activate,  (req, res) => {
  var m = moment()
  var fullname = req.user.fullname
  var year = m.format('YYYY')
+ var month = m.format('MMMM')
  var dateValue = m.valueOf()
+ var mformat = m.format("L")
+
  var date = m.toString()
  var id = req.params.id;
  var name = req.body.name;
@@ -194,7 +211,9 @@ router.post('/deliveries/:id',isLoggedIn, activate,  (req, res) => {
  var barcodeNumber = req.body.barcodeNumber
  var quantityDispatched = req.body.quantityDispatched
  let status3 = req.body.status3
+ let status4
  var quantityReceived = req.body.quantityReceived
+ var cases
 
         let reg = /\d+\.*\d*/g;
 
@@ -206,8 +225,11 @@ if(quantityDispatched > quantityReceived){
     console.log('yes')
 }
 
+if(quantityDispatched == quantityReceived){
+  status4 = 'yes'
+}
 
-console.log(quantityReceived,"qtyReceived")
+console.log(quantityReceived,quantityDispatched,"qtyReceived")
  req.check('name','Enter Name Of Subject').notEmpty();
  req.check('category','Enter Category').notEmpty();
  req.check('barcodeNumber','Enter Barcode Number').notEmpty();
@@ -260,7 +282,10 @@ else
                     pass.rate = 0
                     pass.zwl = 0
                     pass.price = 0
-                
+                    pass.month = month
+                    pass.mformat = mformat
+                    pass.year = year
+                    pass.cases = 0
         
                     pass.save()
             .then(pas =>{
@@ -276,11 +301,17 @@ else
 
             })
         }
-       
-        Dispatch.findByIdAndUpdate(id,{$set:{status:status3,status3:status3,qtyReceived:quantityReceived, quantityVariance:quantityVariance}},function(err,locs){
+       Dispatch.findById(id,function(err,noc){
+         let unitCases = noc.unitCases
+         cases = quantityReceived / unitCases
+        Dispatch.findByIdAndUpdate(id,{$set:{status:status3,status3:status4,qtyReceived:quantityReceived, quantityVariance:quantityVariance, casesReceived:cases}},function(err,locs){
+if(!err){
+  ShopStock.findByIdAndUpdate(idX,{$set:{cases:cases}},function(err,locs){
 
+  })
+}
         })
-
+      })
       
             })
 

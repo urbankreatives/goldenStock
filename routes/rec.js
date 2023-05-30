@@ -58,13 +58,14 @@ var month = m.format('MMMM')
 var mformat = m.format("L")
   var receiver = req.user.fullname
   var category = req.body.category
-  var quantity = req.body.quantity
-console.log(quantity,'qty')
+  var unitCases = req.body.unitCases
+  var casesReceived = req.body.casesReceived
 
+var quantity  = casesReceived * unitCases
 
   req.check('barcodeNumber','Enter Barcode Number').notEmpty();
   req.check('name','Enter Product Name').notEmpty();
-  req.check('quantity','Enter Quantity').notEmpty();
+  req.check('casesReceived','Enter Number of Cases').notEmpty();
  
   
 
@@ -80,9 +81,9 @@ console.log(quantity,'qty')
     
   
   }
-  else{
+  else
 
- 
+ {
   var book = new Stock();
   book.barcodeNumber = barcodeNumber
   book.category = category
@@ -95,6 +96,8 @@ console.log(quantity,'qty')
   book.date  = date
   book.dateValue = dateValue
   book.quantity = quantity
+  book.unitCases = unitCases
+  book.cases = casesReceived
   book.rate = 0
   book.zwl = 0
   book.price = 0
@@ -105,14 +108,17 @@ console.log(quantity,'qty')
 
             Product.find({barcodeNumber:barcodeNumber},function(err,docs){
              let id = docs[0]._id
-              let rcvdQty = pro.quantity
-              let openingQuantity = docs[0].quantity
+              let rcvdQty = pro.cases
+              let openingQuantity = docs[0].cases
              //nqty = pro.quantity + docs[0].quantity
-             nqty = pro.quantity + docs[0].quantity
+             nqty = pro.cases + docs[0].cases
+             nqty2 = nqty * docs[0].unitCases
              console.log(nqty,'nqty')
-             Product.findByIdAndUpdate(id,{$set:{quantity:nqty,openingQuantity:openingQuantity, rcvdQuantity:rcvdQty}},function(err,nocs){
+             Product.findByIdAndUpdate(id,{$set:{cases:nqty,openingQuantity:openingQuantity, rcvdQuantity:rcvdQty,quantity:nqty2}},function(err,nocs){
 
              })
+
+             
 
             })
           
@@ -124,9 +130,9 @@ console.log(quantity,'qty')
           
         
         })
-      }
+      
 res.redirect('/rec/addStock')
-
+      }
 })
 
 
@@ -249,25 +255,27 @@ router.post('/fill',function(req,res){
           }
             })*/ 
 
+            console.log(rcvdQuantity,'rcvd')
 
           Stock.findById(id,function(err,doc){
             let barcodeNumber = doc.barcodeNumber
            
 
-      oldQty = doc.quantity
+      oldQty = doc.cases
+      let quantity = doc.unitCases * rcvdQuantity
 
-          Stock.findByIdAndUpdate(id,{$set:{quantity:rcvdQuantity}},function(err,locs){
+          Stock.findByIdAndUpdate(id,{$set:{cases:rcvdQuantity, quantity:quantity}},function(err,locs){
           
           })
 
 
           Stock.find({barcodeNumber:barcodeNumber,mformat:mformat},function(err,joc){
             for(var i = 0;i<joc.length;i++){
-console.log(joc[i].quantity,'quantity')
+
           
             if(arr.length > 0 && arr.find(value => value.barcodeNumber == joc[i].barcodeNumber)){
               console.log('true')
-             arr.find(value => value.barcodeNumber ==joc[i].barcodeNumber).quantity += joc[i].quantity;
+             arr.find(value => value.barcodeNumber ==joc[i].barcodeNumber).cases += joc[i].cases;
         }else{
 arr.push(joc[i])
         }
@@ -277,15 +285,17 @@ arr.push(joc[i])
 
         
         Product.find({barcodeNumber:barcodeNumber},function(err,locs){
-          console.log(arr[0].quantity,'arr')
+          console.log(arr[0].unitCases,'arr')
         let proId = locs[0]._id
        
-        let opQuantity = locs[0].quantity - oldQty
-        let nqty  =opQuantity + rcvdQuantity
+       // let opQuantity = arr[0].cases - oldQty
+        //let nqty  =opQuantity + rcvdQuantity
           //let nqty = opQuantity + arr[0].quantity
-          let openingQty = nqty - arr[0].quantity
+        //  let openingQty = nqty - arr[0].cases
 
-          Product.findByIdAndUpdate(proId,{$set:{rcvdQuantity:arr[0].quantity, quantity:nqty,openingQuantity:openingQty}},function(err,koc){
+         
+let nqty2 = arr[0].cases * locs[0].unitCases
+          Product.findByIdAndUpdate(proId,{$set:{rcvdQuantity:arr[0].cases, cases:arr[0].cases,openingQuantity:0, quantity:nqty2}},function(err,koc){
 
           })
 
