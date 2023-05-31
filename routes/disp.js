@@ -41,10 +41,11 @@ const JWT_RESET_KEY = "jwtreset987";
 
 router.get('/dispatch',isLoggedIn,function(req,res){
   var pro = req.user
-  res.render('product/dispatch',{pro:pro})
+  var successMsg = req.flash('success')[0];
+  res.render('product/dispatch',{pro:pro,successMsg: successMsg, noMessages: !successMsg})
 })
 
-
+/*
 router.post('/dispatch',isLoggedIn, function(req,res){
   var pro = req.user
   var barcodeNumber = req.body.barcodeNumber;
@@ -136,7 +137,7 @@ var quantity = unitCases * casesDispatched
               })*/
 
 
-              Product.find({barcodeNumber:barcodeNumber},function(err,focs){
+            /*  Product.find({barcodeNumber:barcodeNumber},function(err,focs){
                 let idN = focs[0]._id
                  
                 rqty =  focs[0].cases - pro.casesDispatched 
@@ -193,11 +194,191 @@ var quantity = unitCases * casesDispatched
             res.render('product/dispatch',{message:req.session.message,pro:pro});*/
           
         
-        })
+     /*   })
      
 res.redirect('/ship/dispatch')
 }
+})*/
+
+
+
+router.post('/dispatch',isLoggedIn, function(req,res){
+  var pro = req.user
+  var barcodeNumber = req.body.barcodeNumber;
+  var name = req.body.name;
+  var m = moment()
+  var year = m.format('YYYY')
+
+
+var month = m.format('MMMM')
+
+var mformat = m.format("L")
+  var dateValue = m.valueOf()
+  var date = m.toString()
+  var dispatcher = req.user.fullname
+  var category = req.body.category
+  var cases = req.body.cases
+  var unitCases = req.body.unitCases
+  var casesDispatched = req.body.casesDispatched
+  var shop = req.body.shopName
+  var customer = req.body.customer
+  var user = req.user.role
+var numDate = m.valueOf()
+var arr= ['months']
+console.log(unitCases,casesDispatched,'why')
+var quantity = unitCases * casesDispatched
+
+  req.check('barcodeNumber','Enter Barcode Number').notEmpty();
+  req.check('name','Enter Product Name').notEmpty();
+  req.check('shopName','Enter Shop Name').notEmpty();
+  req.check('casesDispatched','Enter Number of Cases To Be Dispatched').notEmpty();
+ 
+  
+
+  
+  
+  var errors = req.validationErrors();
+   
+  if (errors) {
+
+    req.session.errors = errors;
+    req.session.success = false;
+   // res.render('product/dispatch',{ errors:req.session.errors,pro:pro})
+
+   req.flash('success', req.session.errors[0].msg);
+       
+        
+   res.redirect('/ship/dispatch');
+    
+  
+  }
+  else{
+    Shop.findOne({'customer':customer,'shop':shop})
+    .then(loc=>{
+     
+      Product.findOne({'name':name})
+    .then(hoc=>{
+
+      if(hoc && loc){
+
+    
+  var book = new Dispatch();
+  book.barcodeNumber = barcodeNumber
+  book.category = category
+  book.name = name
+  book.customer = customer
+  book.quantityDispatched = quantity
+  book.cases = cases
+  book.unitCases = unitCases
+  book.casesDispatched = casesDispatched
+  book.dispatcher = dispatcher
+  book.casesReceived = 0
+  book.status ='Pending'
+  book.status2 = 'Confirm Delivery'
+  book.status3 = 'No'
+  book.shop = shop
+  book.qtyReceived = 0
+  book.quantityVariance = 0
+  book.dateDispatched = date
+  book.dateDispatchedValue = dateValue
+  book.dateReceived = 'null'
+  book.dateReceivedValue = 'null'
+  book.receiver = 'null'
+  book.rate = 0
+  book.zwl = 0
+  book.price = 0
+  book.mformat = mformat
+  book.month = month
+  book.year = year 
+      
+       
+        book.save()
+          .then(pro =>{
+
+
+           /* Stock.find({barcodeNumber:barcodeNumber},function(err,docs){
+              let id = docs[0]._id
+               
+              nqty =  docs[0].quantity - pro.quantityDispatched 
+              console.log(nqty,'nqty')*/
+             /* Stock.findByIdAndUpdate(id,{$set:{quantity:nqty}},function(err,nocs){
+ 
+              })*/
+
+
+              Product.find({barcodeNumber:barcodeNumber},function(err,focs){
+                let idN = focs[0]._id
+                 
+                rqty =  focs[0].cases - pro.casesDispatched 
+               let quantity = rqty * focs[0].unitCases
+                Product.findByIdAndUpdate(idN,{$set:{cases:rqty,quantity:quantity}},function(err,vocs){
+   
+                })
+
+              User.find({customer:customer, shop:shop},function(err,ocs){
+  
+                for(var i = 0; i<ocs.length;i++){
+                
+            
+            
+    let id = ocs[i]._id
+    var not = new Note();
+    not.role = 'admin'
+    not.subject = 'Incoming Delivery';
+    not.message = 'Incoming Delivery for'+" "+name
+    not.examLink = 'null'
+    not.status = 'not viewed';
+    not.status1 = 'new';
+    not.user = user;
+    not.quizId = 'null'
+    not.type = 'exam'
+    not.status2 = 'new'
+    not.status3 = 'new'
+    not.status4 = 'null'
+    not.date = m
+
+    not.dateViewed = 'null'
+    not.recId = ocs[i]._id
+    not.recRole = 'merchant'
+    not.senderPhoto = 'propic.jpg'
+    not.numDate = numDate
+             
+  
+               
+          
+              not.save()
+                .then(user =>{
+         
+            })
+   
+          }
+        })
+ 
+             
+            })
+          
+          /*  req.session.message = {
+              type:'success',
+              message:'Product added'
+            }  
+            res.render('product/dispatch',{message:req.session.message,pro:pro});*/
+          
+        
+       })
+       res.redirect('/ship/dispatch')
+
+      }else{
+        req.flash('success', 'Check Typo for ProductName, Customer & Shop!');
+ 
+        req.session.cart = null;
+        res.redirect('/ship/dispatch');
+      }
 })
+})
+}
+   
+})
+
 
 
 router.get('/viewDispatch',isLoggedIn, (req, res) => {

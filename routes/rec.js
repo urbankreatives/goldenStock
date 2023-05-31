@@ -40,7 +40,8 @@ const JWT_RESET_KEY = "jwtreset987";
 
 router.get('/addStock',isLoggedIn,function(req,res){
   var pro = req.user
-  res.render('product/stock',{pro:pro})
+  var successMsg = req.flash('success')[0];
+  res.render('product/stock',{pro:pro,successMsg: successMsg, noMessages: !successMsg})
 })
 
 
@@ -77,13 +78,21 @@ var quantity  = casesReceived * unitCases
 
     req.session.errors = errors;
     req.session.success = false;
-    res.render('product/stock',{ errors:req.session.errors,pro:pro})
-    
+   // res.render('product/stock',{ errors:req.session.errors,pro:pro})
+   req.flash('success', req.session.errors[0].msg);
+       
+        
+   res.redirect('/rec/addStock');
   
   }
   else
 
  {
+
+  Product.findOne({'name':name})
+  .then(hoc=>{
+
+    if(hoc && loc){
   var book = new Stock();
   book.barcodeNumber = barcodeNumber
   book.category = category
@@ -130,8 +139,14 @@ var quantity  = casesReceived * unitCases
           
         
         })
-      
-res.redirect('/rec/addStock')
+        res.redirect('/rec/addStock')
+      }   else{
+        req.flash('success', 'Product Does Not Exist');
+ 
+        res.redirect('/rec/addStock');
+      }
+    }) 
+
       }
 })
 

@@ -257,7 +257,7 @@ else
 
    
 
-        ShopStock.find({barcodeNumber:barcodeNumber},function(err,docs){
+        ShopStock.find({barcodeNumber:barcodeNumber,shop:shop, customer:customer},function(err,docs){
   
                 if(docs.length == 0)
                 {
@@ -294,10 +294,11 @@ else
         }
         else{
             var  idX  = docs[0]._id
+            console.log(idX)
             let openingQuantity = docs[0].currentQuantity
             var xquant = docs[0].currentQuantity + quan
             console.log(xquant,'xquant')
-            ShopStock.findByIdAndUpdate(idX,{$set:{currentQuantity:xquant,openingQuantity:openingQuantity}},function(err,locs){
+            ShopStock.findByIdAndUpdate(idX,{$set:{currentQuantity:xquant,openingQuantity:openingQuantity,stockUpdate:"no"}},function(err,locs){
 
             })
         }
