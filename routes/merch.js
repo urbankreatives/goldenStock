@@ -304,7 +304,7 @@ else
        Dispatch.findById(id,function(err,noc){
          let unitCases = noc.unitCases
          cases = quantityReceived / unitCases
-        Dispatch.findByIdAndUpdate(id,{$set:{status:status3,status3:status4,qtyReceived:quantityReceived, quantityVariance:quantityVariance, casesReceived:cases}},function(err,locs){
+        Dispatch.findByIdAndUpdate(id,{$set:{status:status3,status3:status4,qtyReceived:quantityReceived, quantityVariance:quantityVariance, casesReceived:cases,dateReceived:date,dateReceivedValue:dateValue}},function(err,locs){
 if(!err){
   ShopStock.findByIdAndUpdate(idX,{$set:{cases:cases}},function(err,locs){
 

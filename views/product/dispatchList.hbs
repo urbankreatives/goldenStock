@@ -887,10 +887,14 @@
 													<th class="text-end min-w-75px">Category</th>
 													<th class="text-end min-w-75px">Barcode Number</th>
 													<th class="text-end min-w-75px">Customer</th>
-														<th class="text-end min-w-75px">Status</th>
-													<th class="text-end min-w-75px">Shop</th>
-													<th class="text-end min-w-75px">Qty</th>
-													<th class="text-end min-w-75px">Date</th>
+														<th class="text-end min-w-75px">Shop</th>
+														<th class="text-end min-w-75px">Delivery Status</th>
+													<th class="text-end min-w-75px">Qty </th>
+														<th class="text-end min-w-75px">Cases </th>
+													<th class="text-end min-w-75px">Date Dispatched</th>
+													<th class="text-end min-w-75px">Qty Rcvd</th>
+														<th class="text-end min-w-75px">Cases Rcvd</th>
+															<th class="text-end min-w-75px">Date Rvcd</th>
 											
 												</tr>
 												<!--end::Table row-->
@@ -912,13 +916,17 @@
 													<!--end::Products sold=-->
 													<!--begin::Tax=-->
 													<td class="text-end pe-0">{{this.customer}}</td>
-													<td class="text-end pe-0">{{this.status}}</td>
+													<td class="text-end pe-0">{{this.shop}}</td>
 													<!--end::Tax=-->
 													<!--begin::Total=-->
-														<td class="text-end pe-0">{{this.shop}}</td>
+														<td class="text-end pe-0">{{this.status}}</td>
 														
 																<td class="text-end pe-0">{{this.quantityDispatched}}</td>
+																	<td class="text-end pe-0">{{this.casesDispatched}}</td>
 																	<td class="text-end pe-0">{{this.dateDispatched}}</td>
+																	<td class="text-end pe-0">{{this.qtyReceived}}</td>
+																	<td class="text-end pe-0">{{this.casesReceived}}</td>
+																	<td class="text-end pe-0">{{this.dateReceived}}</td>
 													<!--end::Total=-->
 												</tr>
 												<!--end::Table row-->

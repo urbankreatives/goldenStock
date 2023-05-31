@@ -73,7 +73,7 @@ var quantity = unitCases * casesDispatched
 
   req.check('barcodeNumber','Enter Barcode Number').notEmpty();
   req.check('name','Enter Product Name').notEmpty();
-
+  req.check('shopName','Enter Shop Name').notEmpty();
   req.check('casesDispatched','Enter Number of Cases To Be Dispatched').notEmpty();
  
   

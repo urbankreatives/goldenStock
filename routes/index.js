@@ -71,7 +71,7 @@ router.post('/', passport.authenticate('local.signin', {
   failureFlash: true
 }), function (req, res, next) {
   if(req.user.role == "admin"){
-    res.redirect("/dash");
+    res.redirect("/storeStat");
   }else if (req.user.role == 'merchant')
   res.redirect('/merch/userUpdate')
   else if(req.user.role == 'receiver')
@@ -97,6 +97,10 @@ router.get('/storeStat',function(req,res){
   std.bestSellingCategory = 0;
   std.bestSellingStore = 0;
   std.bestSellingProduct = 0;
+  std.bestSellingCustomerX = 'null';
+  std.bestSellingCategoryX = 'null';
+  std.bestSellingStoreX = 'null';
+  std.bestSellingProductX = 'null';
   std.year = year;
   
   
@@ -105,8 +109,11 @@ router.get('/storeStat',function(req,res){
   
     Sales.find({year:year},function(err,docs) {
       // console.log(docs,'docs')
+      if(docs.length > 0){
        for(var i = 0;i<docs.length;i++){
-   
+  
+     
+  
        
           if(arr.length > 0 && arr.find(value => value.shop == docs[i].shop)){
                  console.log('true')
@@ -133,14 +140,16 @@ router.get('/storeStat',function(req,res){
   
   
   })
+}
      })
   
-     
+    
   
   })
       }else{
         Sales.find({year:year},function(err,docs) {
           // console.log(docs,'docs')
+          if(docs.length > 0){
            for(var i = 0;i<docs.length;i++){
        
            
@@ -169,6 +178,7 @@ router.get('/storeStat',function(req,res){
       
       
       })
+    }
          })
         
       }
@@ -199,6 +209,10 @@ router.get('/storeStat',function(req,res){
       std.bestSellingCategory = 0;
       std.bestSellingStore = 0;
       std.bestSellingProduct = 0;
+      std.bestSellingCustomerX = 'null';
+      std.bestSellingCategoryX = 'null';
+      std.bestSellingStoreX = 'null';
+      std.bestSellingProductX = 'null';
       std.year = year;
       
       
@@ -207,6 +221,7 @@ router.get('/storeStat',function(req,res){
       
         Sales.find({year:year},function(err,docs) {
           // console.log(docs,'docs')
+          if(docs.length > 0){
            for(var i = 0;i<docs.length;i++){
        
            
@@ -235,6 +250,7 @@ router.get('/storeStat',function(req,res){
       
       
       })
+    }
          })
       
          
@@ -243,6 +259,7 @@ router.get('/storeStat',function(req,res){
           }else{
             Sales.find({year:year},function(err,docs) {
               // console.log(docs,'docs')
+              if(docs.length > 0){
                for(var i = 0;i<docs.length;i++){
            
                
@@ -271,6 +288,7 @@ router.get('/storeStat',function(req,res){
           
           
           })
+        }
              })
             
           }
@@ -296,6 +314,10 @@ router.get('/storeStat',function(req,res){
       std.bestSellingCategory = 0;
       std.bestSellingStore = 0;
       std.bestSellingProduct = 0;
+      std.bestSellingCustomerX = 'null';
+      std.bestSellingCategoryX = 'null';
+      std.bestSellingStoreX = 'null';
+      std.bestSellingProductX = 'null';
       std.year = year;
       
       
@@ -303,6 +325,7 @@ router.get('/storeStat',function(req,res){
       .then(std=>{
       
         Sales.find({year:year},function(err,docs) {
+          if(docs.length > 0){
           // console.log(docs,'docs')
            for(var i = 0;i<docs.length;i++){
        
@@ -332,6 +355,7 @@ router.get('/storeStat',function(req,res){
       
       
       })
+    }
          })
       
          
@@ -340,6 +364,7 @@ router.get('/storeStat',function(req,res){
           }else{
             Sales.find({year:year},function(err,docs) {
               // console.log(docs,'docs')
+              if(docs.length > 0){
                for(var i = 0;i<docs.length;i++){
            
                
@@ -368,6 +393,7 @@ router.get('/storeStat',function(req,res){
           
           
           })
+        }
              })
             
           }
@@ -398,6 +424,11 @@ router.get('/storeStat',function(req,res){
           std.bestSellingCategory = 0;
           std.bestSellingStore = 0;
           std.bestSellingProduct = 0;
+
+          std.bestSellingCustomerX = 'null';
+          std.bestSellingCategoryX = 'null';
+          std.bestSellingStoreX = 'null';
+          std.bestSellingProductX = 'null';
           std.year = year;
           
           
@@ -406,6 +437,7 @@ router.get('/storeStat',function(req,res){
           
             Sales.find({year:year},function(err,docs) {
               // console.log(docs,'docs')
+              if(docs.length > 0){
                for(var i = 0;i<docs.length;i++){
            
                
@@ -434,6 +466,7 @@ router.get('/storeStat',function(req,res){
           
           
           })
+        }
              })
           
              
@@ -442,6 +475,7 @@ router.get('/storeStat',function(req,res){
               }else{
                 Sales.find({year:year},function(err,docs) {
                   // console.log(docs,'docs')
+                  if(docs.length > 0){
                    for(var i = 0;i<docs.length;i++){
                
                    
@@ -470,6 +504,7 @@ router.get('/storeStat',function(req,res){
               
               
               })
+            }
                  })
                 
               }
@@ -1826,23 +1861,30 @@ router.get('/add',function(req,res){
 
  
 
-  res.render('admitHb')
+  res.render('user/admitHb')
 
 
 })
 
 router.post('/add', function(req,res){
   var m = moment()
-                  var year = m.format('YYYY')
+
+  var year = m.format('YYYY')
+  var dateValue = m.valueOf()
+
+
+
+var date = m.format('L')
                   
                 var name = req.body.name
-                var surname = req.body.surname
+            
                 var mobile = req.body.mobile
                 var email = req.body.email
                 var password = req.body.password
                 var role = req.body.role
+                var username = req.body.username
                 req.check('name','Enter Name').notEmpty();
-                req.check('surname','Enter Surname').notEmpty();
+               
               
                 req.check('email','Enter email').notEmpty().isEmail();
          
@@ -1860,7 +1902,7 @@ router.post('/add', function(req,res){
                     
                       req.session.errors = errors;
                       req.session.success = false;
-                      res.render('admitHb',{ errors:req.session.errors,})
+                      res.render('user/admitHb',{ errors:req.session.errors,})
                       
                     
                   }
@@ -1878,7 +1920,7 @@ router.post('/add', function(req,res){
                          message:'user id already in use'
                        }     
                        
-                          res.render('admitHb', {
+                          res.render('user/admitHb', {
                               message:req.session.message,    }) 
                        
                         
@@ -1889,7 +1931,7 @@ router.post('/add', function(req,res){
 
                   
                   var user = new User();
-                  user.fullname = name +" "+ surname;
+                  user.fullname = name;
                   user.email = email;
                   user.mobile = mobile;
                   user.photo = 'propic.jpg';
@@ -1900,11 +1942,13 @@ router.post('/add', function(req,res){
                   user.shop = 'null'
                   user.customer = 'null'
                   user.autoCustomer='null'
-
+                  user.dateAdded = date
+                  user.dateModified =date
                   user.merch = 'null'
                   user.userId = 'null'
                   user.photo2 = 'null'
                   user.username = 'null'
+                  user.username2 = username
 
                   
                   
@@ -1936,6 +1980,17 @@ router.post('/add', function(req,res){
 })
 
 
+router.get('/userListing',isLoggedIn,function(req,res){
+  var pro = req.user
+User.find({},(err, docs) => {
+       if (!err) {
+           res.render("user/listing", {
+              list:docs,pro:pro
+             
+           });
+       }
+   });
+})
 
 
 
@@ -2270,35 +2325,25 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
   var pro = req.user
   var name = req.body.name
   var category = req.body.category
-  var quantity = req.body.quantity
-  var price = req.body.price
+  var unitCases = req.body.unitCases
   var barcodeNumber = req.body.barcodeNumber
-  var zwl = req.body.zwl
+  
         req.check('name','Enter Product Name').notEmpty();
             
                req.check('category','Enter Product Category').notEmpty();
-               req.check('price','Enter Product Price').notEmpty();
-               req.check('quantity', 'Enter Product Quantity').notEmpty();
-               req.check('barcodNumber', 'Enter Product Barcode Number').notEmpty();
-               req.check('zwl', 'Enter ZWL Price').notEmpty();
+               req.check('unitCases','Enter Case Units').notEmpty();
+           
+               req.check('barcodeNumber', 'Enter Product Barcode Number').notEmpty();
+            
                var errors = req.validationErrors();
   
-        if(!req.file){
-
-            req.session.message = {
-              type:'errors',
-              message:'Select File!'
-            }     
-              res.render('product/addProduct', {message:req.session.message,pro:pro
-           
-               })
-              }
+        
              
-                else if (errors) {
+           if (errors) {
             
                      req.session.errors = errors;
                      req.session.success = false;
-                     res.render('book',{ errors:req.session.errors,pro:pro})
+                     res.render('product/addProduct',{ errors:req.session.errors,pro:pro})
               
                  }
 
@@ -2327,20 +2372,22 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
         
               
           
-                const imageFile = req.file.filename;
+       
         
                 var book = new Product();
                   book.barcodeNumber = barcodeNumber
                   book.category = category
                   book.name = name
-                  book.filename = imageFile;
-              
-                  book.quantity = quantity
+                  book.unitCases = unitCases
+                  book.cases = 0
+                  book.rcvdQuantity = 0
+                  book.openingQuantity = 0
+                  book.quantity = 0
                  
              
                   book.rate = 0
                   book.zwl = 0
-                  book.price = price
+                  book.price = 0
                       
                        
                         book.save()
@@ -2411,6 +2458,19 @@ router.get('/viewSales',isLoggedIn,function(req,res){
       }
   });
 })
+
+
+router.get('/stockTrack',isLoggedIn, (req, res) => {
+  var pro = req.user
+  Dispatch.find({},(err, docs) => {
+      if (!err) {
+          res.render("admin/dispatchList", {
+             list:docs,pro:pro
+            
+          });
+      }
+  });
+  });
 
 router.post('/fill',function(req,res){
 
