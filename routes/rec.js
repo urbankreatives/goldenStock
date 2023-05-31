@@ -92,7 +92,7 @@ var quantity  = casesReceived * unitCases
   Product.findOne({'name':name})
   .then(hoc=>{
 
-    if(hoc && loc){
+    if(hoc){
   var book = new Stock();
   book.barcodeNumber = barcodeNumber
   book.category = category
