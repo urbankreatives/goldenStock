@@ -401,7 +401,7 @@ router.get('/viewDispatch',isLoggedIn, (req, res) => {
     var dateValue = m.valueOf()
     var mformat = m.format("L")
     var date = m.toString()
-    Dispatch.find({mformat:mformat},(err, docs) => {
+    Dispatch.find({mformat:mformat,status:"Pending"},(err, docs) => {
         if (!err) {
             res.render("product/listChange2", {
                list:docs,pro:pro
