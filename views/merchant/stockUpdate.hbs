@@ -677,7 +677,7 @@
 											<div class="d-flex flex-column bgi-no-repeat rounded-top" style="background-image:url('assets/media/misc/pattern-1.jpg')">
 												<!--begin::Title-->
 												<h3 class="text-white fw-bold px-9 mt-10 mb-6">Notifications
-												<span class="fs-8 opacity-75 ps-3">24 reports</span></h3>
+												<span class="fs-8 opacity-75 ps-3"> reports</span></h3>
 												<!--end::Title-->
 												<!--begin::Tabs-->
 												<ul class="nav nav-line-tabs nav-line-tabs-2x nav-stretch fw-bold px-9">
@@ -709,7 +709,7 @@
 																<span class="w-70px badge badge-light-success me-4">{{this.role}}</span>
 																<!--end::Code-->
 																<!--begin::Title-->
-																<a href="#" class="text-gray-800 text-hover-primary fw-bold">{{this.subject}}</a>
+																<a href="/merch/notify/{{this._id}}" class="text-gray-800 text-hover-primary fw-bold">{{this.subject}}</a>
 
 															
 																<!--end::Title-->
@@ -731,7 +731,7 @@
 											
 													<!--begin::View more-->
 													<div class="py-3 text-center border-top">
-														<a href="#" class="btn btn-color-gray-600 btn-active-color-primary">View All
+														<a href="/merch/nList" class="btn btn-color-gray-600 btn-active-color-primary">View All
 														<!--begin::Svg Icon | path: icons/duotune/arrows/arr064.svg-->
 														<span class="svg-icon svg-icon-5">
 															<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -1444,6 +1444,23 @@
         var orig_text = input.parentElement.getAttribute('data-text');
         var current_text = this.value;
 
+		 let reg = /\d+\.*\d*/g;
+
+  let result = current_text.match(reg)
+  let currentStock = Number(result)
+
+
+  
+
+  let resultX = orig_text.match(reg)
+  let originalStock = Number(resultX)
+
+  console.log(currentStock,originalStock,'stock')
+
+  if(originalStock > currentStock){
+
+
+
         if(orig_text != current_text ){
             //there are changes
             //save into db using ajax
@@ -1498,7 +1515,21 @@ else{
             console.log('No changes made')
 		
         }
+
+  }else{
+
+  
+  alert('error')
+
+	   td.removeAttribute('data-clicked')
+            td.removeAttribute('data-text')
+            td.innerHTML = orig_text
+            td.style.cssText = 'padding: 5px';
+            console.log('No changes made')
+
+  }
     }
+	
     this.innerHTML = ''
     this.style.cssText = 'padding: 0px';
     this.append(input);

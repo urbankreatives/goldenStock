@@ -96,13 +96,69 @@ if(grower){
 })
 
 }
-res.redirect('/merch/deliveries')
+res.redirect('/merch/notUpdate')
 
 
 })
 
 
 })
+
+
+
+router.get('/notUpdate',isLoggedIn,function(req,res){
+  var m = moment()
+  let n = m.valueOf()
+  var id = req.user._id
+  
+  Note.find({recId:id},function(err,docs){
+  
+  for(var i = 0; i<docs.length;i++){
+  let value = docs[i].numDate
+  let num = n - value
+  let nId = docs[i]._id
+  
+  if(num >= 86000000){
+    Note.findByIdAndUpdate(nId,{$set:{status1:'old'}},function(err,nocs){
+  
+  
+    })
+  }
+  
+  }
+  res.redirect('/merch/nots')
+  
+  
+  })
+  
+  
+  
+  })
+  
+  router.get('/nots',isLoggedIn, function(req,res){
+    var m = moment();
+  var id = req.user._id
+  var customer = req.user.customer
+  var shop = req.user.shop
+    Note.find({recId:id,status:'viewed',customer:customer,shop:shop},function(err,docs){
+      for(var i = 0;i<docs.length;i++){
+        let duration =moment(docs[i].dateViewed)
+        let days=m.diff(duration,"days");
+        let nId = docs[i]._id
+  console.log(days,'days')
+       if(days > 0){
+  Note.findByIdAndUpdate(nId,{$set:{status2:'expired',status1:'old'}},function(err,nocs){
+  
+  })
+       }
+      }
+
+      res.redirect('/merch/deliveries')
+    })
+  
+  
+  })
+
 
 
 
@@ -119,7 +175,7 @@ router.get('/deliveries',isLoggedIn, activate,function(req,res){
       
             console.log(req.user._id)
             console.log(req.user.email)
-              Note.find({recId:req.user._id},function(err,docs){
+              Note.find({recId:req.user._id,customer:customer,shop:shop},function(err,docs){
                 console.log(docs,'docs')
              for(var i = 0;i<docs.length;i++){
       
@@ -140,10 +196,10 @@ router.get('/deliveries',isLoggedIn, activate,function(req,res){
               })
             }
       
-            Note.find({recId:req.user._id,status1:'new'},function(err,flocs){
+            Note.find({recId:req.user._id,status1:'new',customer:customer,shop:shop},function(err,flocs){
               var les 
            
-              Note.find({recId:req.user._id,status:'not viewed'},function(err,jocs){
+              Note.find({recId:req.user._id,status:'not viewed',customer:customer,shop:shop},function(err,jocs){
                les = jocs.length > 0
             
               for(var i = flocs.length - 1; i>=0; i--){
@@ -173,6 +229,7 @@ router.get('/deliveries',isLoggedIn, activate,function(req,res){
 
 
 //update subject
+
 router.get('/deliveries/:id', activate,function(req,res){
     var pro = req.user
  Dispatch.findById(req.params.id, (err, doc) => {
@@ -221,7 +278,7 @@ router.post('/deliveries/:id',isLoggedIn, activate,  (req, res) => {
         let quan = Number(result)
  var quantityVariance = quantityReceived - quantityDispatched
 if(quantityDispatched > quantityReceived){
-    status3 ="Pending"
+    status3 ="Flagged"
     console.log('yes')
 }
 
@@ -784,6 +841,68 @@ router.post('/verifyScan',activate,function(req,res){
     
 
    
+
+    router.post('/not/:id',function(req,res){
+      var m = moment()
+      var date = m.toString()
+    
+    var id = req.params.id
+      Note.find({recId:id},function(err,docs){
+        for(var i = 0; i<docs.length; i++){
+          let nId = docs[i]._id
+    
+          Note.findByIdAndUpdate(nId,{$set:{status:'viewed',dateViewed:date}},function(err,locs){
+    
+          })
+        }
+    
+        res.send('success')
+      })
+    })
+    
+    
+    
+      
+      
+    
+
+
+router.get('/nList',isLoggedIn,function(req,res){
+  var id = req.user._id
+  var m = moment()
+  console.log(m.valueOf(),'crap')
+  Note.find({recId:id},function(err,docs){
+    if(!err){
+
+   
+    res.render('merchant/notList',{list:docs})
+
+    }
+  })
+})
+
+router.get('/notify/:id', isLoggedIn, function(req,res){
+  var id = req.params.id
+  var uid = req.user._id
+  console.log(id,'id')
+  var arr = []
+  Note.find({recId:uid,_id:id},function(err,tocs){
+
+let subject = tocs[0].subject
+let message = tocs[0].message
+let status4 = tocs[0].status4
+let user = tocs[0].user
+let date = tocs[0].date
+let senderPhoto = tocs[0].senderPhoto
+
+    
+    res.render('merchant/notView',{message:message, subject:subject,status4:status4,user:user,date:date,senderPhoto:senderPhoto})
+  })
+
+})
+
+
+
    
    
 

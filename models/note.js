@@ -14,11 +14,14 @@ var schema = new Schema({
     status1: {type: String, required: true},
     status2: {type: String, required: true},
     status3: {type: String, required: true},
+    customer: {type: String, required: true},
+    shop: {type: String, required: true},
     date: {type: String, required: true},
     status4:{type:String, required:true},
     dateViewed: {type: String, required: true},
     recId:{type:String, required:true},
     recRole:{type:String,required:true},
+    senderPhoto:{type:String,required:true},
     numDate: {type: Number, required: true},
  
 });

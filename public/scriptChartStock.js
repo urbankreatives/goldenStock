@@ -9,7 +9,7 @@ let labels1 =[]
 let labels2=[]
 for (var i = 0;i<data.length;i++){
         labels2.push(data[i].category)
-        labels1.push(data[i].quantity)
+        labels1.push(data[i].cases)
      }
     let colors2 = ['#49A9EA', '#36CAAB', '#34495E', '#B370CF','#FFA07A','#FFFF00'];
 
@@ -346,7 +346,7 @@ var button = document.getElementById('myChart5tab').addEventListener('click', fu
       let labels3=[]
       let labels4=[]
       for (var i = 0;i<data.length;i++){
-          labels3.push({"x":data[i].name,"y":data[i].quantity})
+          labels3.push({"x":data[i].name,"y":data[i].cases})
           // labels3.push(data[i].qty)
            }
       
@@ -383,7 +383,7 @@ var button = document.getElementById('myChart5tab').addEventListener('click', fu
       let labels4=[]
       for (var i = 0;i<data.length;i++){
        
-        labels3.push(data[i].quantity)
+        labels3.push(data[i].cases)
         labels4.push(data[i].name)
 
         // labels3.push(data[i].qty)
@@ -716,7 +716,7 @@ var button6 = document.getElementById('myChart6tab').addEventListener('click', f
       let labels3=[]
       let labels4=[]
       for (var i = 0;i<data.length;i++){
-        labels3.push({"x":data[i].name,"y":data[i].quantity})
+        labels3.push({"x":data[i].name,"y":data[i].cases})
         // labels3.push(data[i].qty)
          }
     
@@ -921,7 +921,7 @@ var button7 = document.getElementById('myChart7tab').addEventListener('click', f
       let labels3=[]
       let labels4=[]
       for (var i = 0;i<data.length;i++){
-        labels3.push({"x":data[i].name,"y":data[i].quantity})
+        labels3.push({"x":data[i].name,"y":data[i].cases})
         // labels3.push(data[i].qty)
          }
     
@@ -1123,7 +1123,7 @@ var button8 = document.getElementById('myChart8tab').addEventListener('click', f
       let labels3=[]
       let labels4=[]
       for (var i = 0;i<data.length;i++){
-        labels3.push({"x":data[i].name,"y":data[i].quantity})
+        labels3.push({"x":data[i].name,"y":data[i].cases})
         // labels3.push(data[i].qty)
          }
     
@@ -1331,7 +1331,7 @@ var button9 = document.getElementById('myChart9tab').addEventListener('click', f
       let labels3=[]
       let labels4=[]
       for (var i = 0;i<data.length;i++){
-        labels3.push({"x":data[i].name,"y":data[i].quantity})
+        labels3.push({"x":data[i].name,"y":data[i].cases})
           // labels3.push(data[i].qty)
            }
       

@@ -3,7 +3,8 @@ var router = express.Router();
 var User = require('../models/user');
 var Cart = require('../models/cart');
 var Dispatch = require('../models/dispatch');
-var Category = require('../models/stock');
+var Category = require('../models/category');
+var Customer = require('../models/customer');
 var nodemailer = require('nodemailer');
 var Product = require('../models/product');
 var SaleStats = require('../models/saleStats');
@@ -508,10 +509,63 @@ router.get('/storeStat',function(req,res){
                  })
                 
               }
-          res.redirect('/dash')
+          res.redirect('/notUpdate')
               })
           
             })
+
+              
+  
+router.get('/notUpdate',isLoggedIn,function(req,res){
+  var m = moment()
+  let n = m.valueOf()
+  var id = req.user._id
+  
+  Note.find({recId:id},function(err,docs){
+  
+  for(var i = 0; i<docs.length;i++){
+  let value = docs[i].numDate
+  let num = n - value
+  let nId = docs[i]._id
+  
+  if(num >= 86000000){
+    Note.findByIdAndUpdate(nId,{$set:{status1:'old'}},function(err,nocs){
+  
+  
+    })
+  }
+  
+  }
+  res.redirect('/nots')
+  
+  
+  })
+  
+  
+  
+  })
+  
+  router.get('/nots',isLoggedIn, function(req,res){
+    var m = moment();
+  var id = req.user._id
+    Note.find({recId:id,status:'viewed'},function(err,docs){
+      for(var i = 0;i<docs.length;i++){
+        let duration =moment(docs[i].dateViewed)
+        let days=m.diff(duration,"days");
+        let nId = docs[i]._id
+  console.log(days,'days')
+       if(days > 0){
+  Note.findByIdAndUpdate(nId,{$set:{status2:'expired',status1:'old'}},function(err,nocs){
+  
+  })
+       }
+      }
+
+      res.redirect('/dash')
+    })
+  
+  
+  })
 
 
 
@@ -689,37 +743,118 @@ arr.push(docs[i])
 //general sales stats
 router.get('/dash',isLoggedIn,function(req,res){
   var pro = req.user
-  res.render('admin/dashG',{pro:pro})
+  const arr = []
+const m = moment();
+  var id =req.user._id
+
+    Recepient.find({recepientId:id,statusCheck:'not viewed'},function(err,rocs){
+      let lgt = rocs.length
+      var gt = lgt > 0
+    
+          console.log(req.user._id)
+          console.log(req.user.email)
+            Note.find({recId:req.user._id},function(err,docs){
+              console.log(docs,'docs')
+           for(var i = 0;i<docs.length;i++){
+    
+           
+             let date = docs[i].date
+             let id = docs[i]._id
+             let timeX = moment(date)
+             let timeX2 =timeX.fromNow()
+             console.log(timeX2,'timex2')
+    
+             Note.findByIdAndUpdate(id,{$set:{status4:timeX2}},function(err,locs){
+    
+             
+             
+            // Format relative time using negative value (-1).
+    
+              
+            })
+          }
+    
+          Note.find({recId:req.user._id,status1:'new'},function(err,flocs){
+            var les 
+         
+            Note.find({recId:req.user._id,status:'not viewed'},function(err,jocs){
+             les = jocs.length > 0
+          
+            for(var i = flocs.length - 1; i>=0; i--){
+        
+              arr.push(flocs[i])
+            }
+         
+    Customer.find(function(err,zocs){
+
+  
+           
+            res.render('admin/dashG',{pro:pro,list:arr,listX:zocs, les:les,gt:gt })
+    
+          })
+        })
+          })
+    
+        })
+    
+    
+ 
+  })
+
 })
 
 
 router.get('/productSaleStats',isLoggedIn,function(req,res){
   var pro = req.user
-  res.render('admin/index',{pro:pro})
+  Customer.find({},function(err,docs){
+    Category.find({},function(err,ocs){
+  res.render('admin/index',{pro:pro,arr:docs,arr1:ocs})
+    })
+  })
 })
 
 
 router.get('/yearProductStats',isLoggedIn,function(req,res){
   var pro = req.user
-  res.render('admin/index3',{pro:pro})
+  
+  Customer.find({},function(err,docs){
+    Category.find({},function(err,ocs){
+  res.render('admin/index3',{pro:pro,arr:docs,arr1:ocs})
+    })
+  })
 })
 
 
 router.get('/shopSaleStats',isLoggedIn,function(req,res){
   var pro = req.user
-  res.render('admin/dashX',{pro:pro})
+
+  Customer.find({},function(err,docs){
+    Category.find({},function(err,ocs){
+  res.render('admin/dashX',{pro:pro,listX:docs,arr1:ocs})
+    })
+  })
 })
 
 
 router.get('/shopStock',isLoggedIn,function(req,res){
   var pro = req.user
-  res.render('admin/dashStock',{pro:pro})
+ // res.render('admin/dashStock',{pro:pro})
+  Customer.find({},function(err,docs){
+    Category.find({},function(err,ocs){
+  res.render('admin/dashStock',{pro:pro,listX:docs,listX2:docs,arr:docs,arr1:ocs})
+    })
+  })
 })
 
 
 router.get('/warehouseStock',isLoggedIn,function(req,res){
   var pro = req.user
-  res.render('admin/dash6',{pro:pro})
+  //res.render('admin/dash6',{pro:pro})
+  Customer.find({},function(err,docs){
+    Category.find({},function(err,ocs){
+  res.render('admin/dash6',{pro:pro,arr:docs,arr1:ocs})
+    })
+  })
 })
 
 
@@ -1152,7 +1287,7 @@ router.post('/dashChartStockXI',isLoggedIn,function(req,res){
 
       if(arr.length > 0 && arr.find(value => value.category == docs[i].category)){
              console.log('true')
-            arr.find(value => value.category == docs[i].category).quantity += docs[i].quantity;
+            arr.find(value => value.category == docs[i].category).cases += docs[i].cases;
        }else{
 arr.push(docs[i])
        }
@@ -2316,7 +2451,10 @@ req.body.num = record.num
 
 router.get('/info', isLoggedIn,function(req,res){
   var pro = req.user
-  res.render('product/addProduct',{pro:pro})
+  Category.find({},function(err,docs){
+    var arr1 = docs;
+  res.render('product/addProduct',{pro:pro,arr1:docs})
+  })
 })
 
 
@@ -2327,6 +2465,7 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
   var category = req.body.category
   var unitCases = req.body.unitCases
   var barcodeNumber = req.body.barcodeNumber
+  var arr1
   
         req.check('name','Enter Product Name').notEmpty();
             
@@ -2343,8 +2482,10 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
             
                      req.session.errors = errors;
                      req.session.success = false;
-                     res.render('product/addProduct',{ errors:req.session.errors,pro:pro})
-              
+                     Category.find({},function(err,docs){
+                      arr1 = docs;
+                     res.render('product/addProduct',{ errors:req.session.errors,pro:pro, arr1:docs})
+                     })
                  }
 
                  else
@@ -2359,10 +2500,11 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
                        type:'errors',
                        message:'product/barcodeNumber already in the system'
                      }     
-                     
+                     Category.find({},function(err,docs){
+                       arr1 = docs;
                         res.render('product/addProduct', {
-                            message:req.session.message, pro:pro   }) 
-                     
+                            message:req.session.message, pro:pro, arr1:docs   }) 
+                        })
                       
                 }
                 
@@ -2397,8 +2539,10 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
                               type:'success',
                               message:'Product added'
                             }  
-                            res.render('product/addProduct',{message:req.session.message,pro:pro});
-                          
+                            Category.find({},function(err,docs){
+                             arr1 = docs;
+                            res.render('product/addProduct',{message:req.session.message,pro:pro,arr1:docs});
+                            })
                         
                         })
                          
@@ -2427,6 +2571,45 @@ router.post('/info',isLoggedIn, upload.single('file'),function(req,res){
                           });
                           });
 
+
+
+                          
+router.post('/viewStock',isLoggedIn,function(req,res){
+  var pro =req.user
+
+  var date = req.body.date
+  var arr = []
+ 
+  
+  var m = moment(date)
+  console.log(date.split('-')[0])
+  var startDate = date.split('-')[0]
+  var endDate = date.split('-')[1]
+   var startValue = moment(startDate).valueOf()
+   var endValue = moment(endDate).valueOf()
+  console.log(startValue,endValue,'output')
+  Stock.find({},(err, docs) => {
+    for(var i = 0;i<docs.length;i++){
+      let sdate = docs[i].dateValue
+      if(sdate >= startValue && sdate <= endValue){
+arr.push(docs[i])
+      }
+    }
+    console.log(arr,'arr')
+        res.render("product/productList", {
+           list:arr,pro:pro
+          
+        });
+   
+   
+});
+  })
+  
+
+
+
+
+
                           router.get('/viewProducts',isLoggedIn, (req, res) => {
                             var pro = req.user
                             Product.find({},(err, docs) => {
@@ -2447,17 +2630,6 @@ router.get('/search',isLoggedIn,function(req,res){
 
 
 
-router.get('/viewSales',isLoggedIn,function(req,res){
-  var pro = req.user
- Sales.find({},(err, docs) => {
-      if (!err) {
-          res.render("product/sales", {
-             list:docs,pro:pro
-            
-          });
-      }
-  });
-})
 
 
 router.get('/stockTrack',isLoggedIn, (req, res) => {
@@ -2521,6 +2693,17 @@ var startDate = date.split('-')[0]
 var endDate = date.split('-')[1]
 console.log(customer, shop, category,product,date,'output')
 })*/
+router.get('/viewSales',isLoggedIn,function(req,res){
+  var pro = req.user
+ Sales.find({},(err, docs) => {
+      if (!err) {
+          res.render("product/sales", {
+             list:docs,pro:pro
+            
+          });
+      }
+  });
+})
 
 
 router.post('/viewSales',isLoggedIn,function(req,res){
@@ -2531,6 +2714,7 @@ router.post('/viewSales',isLoggedIn,function(req,res){
   var product = req.body.product
   var date = req.body.date
   var arr = []
+  console.log(customer,shop,category,product,date,'variables')
   
   var m = moment(date)
   console.log(date.split('-')[0])
@@ -2758,12 +2942,777 @@ router.get('/verify',isLoggedIn,function(req,res){
       
       })
  
+//add Category
+router.get('/addCategory',isLoggedIn,function(req,res){
+  var pro = req.user
+  res.render('product/catg',{pro:pro})
+})
+
+
+
+router.post('/addCategory',isLoggedIn,  function(req,res){
+  var pro = req.user
+var category = req.body.category;
+
+
+
+   req.check('category','Enter Category').notEmpty();
+
+ 
+   
+   var errors = req.validationErrors();
+        
+   if (errors) {
+   
+     req.session.errors = errors;
+     req.session.success = false;
+     res.render('product/catg',{ errors:req.session.errors,pro:pro})
+   
+ }
+ else{
+   
+     Category.findOne({'name':category})
+     .then(dept =>{
+         if(dept){ 
+
+        req.session.message = {
+         type:'errors',
+          message:'Category already exists'
+        }     
+           res.render('product/catg', {
+              message:req.session.message ,pro:pro
+           })
+         }else
+ 
+   var cat = new Category();
+ 
+   cat.name = category;
+ 
+  
+
+ 
+ 
+   cat.save()
+     .then(dep =>{
+      
+       req.session.message = {
+         type:'success',
+         message:'Cateegory added'
+       }  
+       res.render('product/catg',{message:req.session.message,pro:pro});
+   
+ 
+   })
+ 
+     .catch(err => console.log(err))
+   
+   
+   })
+ }
+ 
+ 
+})
+
+
+
+router.get('/viewCategories',isLoggedIn, function(req,res){
+  var pro = req.user
+  Category.find((err, doc) => {
+   if (!err) {
+   
+       res.render("product/catgList", {
+          
+           list: doc,pro:pro
+         
+           
+       });
+     
+   }
+  });
+  
+  
+})
+
+
+
+//update category
+
+router.get('/category/:id',isLoggedIn, function(req,res){
+  var pro = req.user
+Category.findById(req.params.id, (err, doc) => {
+ if (!err) {
+ 
+     res.render("product/catgUpdate", {
+        
+         doc: doc,pro:pro
+       
+         
+     });
+   
+ }
+});
+
+
+
+})
+
+
+router.post('/category/:id',isLoggedIn,   (req, res) => {
+var pro = req.user
+var m = moment()
+
+var id = req.params.id;
+var name = req.body.category;
+
+
+req.check('name','Enter Category').notEmpty();
+
+
+
+ 
+var errors = req.validationErrors();
+
+
+
+if (errors) {
+
+  
+     req.session.errors = errors;
+     req.session.success = false;
+     res.render('product/catgUpdate',{ errors:req.session.errors,pro:pro})
+  
+ 
+ }
+
+else
+{
+
+  Category.findByIdAndUpdate(id,{$set:{name:name}},function(err,locs){
+
+  })
+
+
+res.redirect('/viewCategories')
+ 
+}
+
+});
+
+
+
+  // this route is for deleting a category
+  router.get('/category/delete/:id',isLoggedIn, (req, res) => {
+
+    Category.findByIdAndRemove(req.params.id, (err, doc) => {
+      if (!err) {
+          res.redirect('/viewCategories');
+      }
+      else { console.log('Error in deleting subject :' + err); }
+    });
+    });
+
+//add Customers
+
+router.get('/addCustomer',isLoggedIn,function(req,res){
+  var pro = req.user
+  res.render('product/cust',{pro:pro})
+})
+
+
+
+router.post('/addCustomer',isLoggedIn,  function(req,res){
+  var pro = req.user
+var customer = req.body.customer;
+var code = req.body.code
+
+   req.check('customer','Enter Customer').notEmpty();
+   req.check('code','Enter Code').notEmpty();
+ 
+   
+   var errors = req.validationErrors();
+        
+   if (errors) {
+   
+     req.session.errors = errors;
+     req.session.success = false;
+     res.render('product/cust',{ errors:req.session.errors,pro:pro})
+   
+ }
+ else{
+   
+     Customer.findOne({'name':customer})
+     .then(dept =>{
+         if(dept){ 
+
+        req.session.message = {
+         type:'errors',
+          message:'Customer already exists'
+        }     
+           res.render('product/cust', {
+              message:req.session.message ,pro:pro
+           })
+         }else
+ 
+   var cat = new Customer();
+ 
+   cat.name = customer;
+   cat.code = code
+ 
+  
+
+ 
+ 
+   cat.save()
+     .then(dep =>{
+      
+       req.session.message = {
+         type:'success',
+         message:'Customer added'
+       }  
+       res.render('product/cust',{message:req.session.message,pro:pro});
+   
+ 
+   })
+ 
+     .catch(err => console.log(err))
+   
+   
+   })
+ }
+ 
+ 
+})
+
+
+
+router.get('/viewCustomers',isLoggedIn, function(req,res){
+  var pro = req.user
+  Customer.find((err, doc) => {
+   if (!err) {
+   
+       res.render("product/custList", {
+          
+           list: doc,pro:pro
+         
+           
+       });
+     
+   }
+  });
+  
+  
+})
+
+
+
+//update category
+
+router.get('/customers/:id',isLoggedIn, function(req,res){
+  var pro = req.user
+Customer.findById(req.params.id, (err, doc) => {
+ if (!err) {
+ 
+     res.render("product/custUpdate", {
+        
+         doc: doc,pro:pro
+       
+         
+     });
+   
+ }
+});
+
+
+
+})
+
+
+router.post('/customers/:id',isLoggedIn,   (req, res) => {
+var pro = req.user
+var m = moment()
+
+var id = req.params.id;
+var name = req.body.customer;
+var code = req.body.code
+
+
+req.check('name','Enter Customer').notEmpty();
+
+
+
+ 
+var errors = req.validationErrors();
+
+
+
+if (errors) {
+
+  
+     req.session.errors = errors;
+     req.session.success = false;
+     res.render('product/custUpdate',{ errors:req.session.errors,pro:pro})
+  
+ 
+ }
+
+else
+{
+
+  Category.findByIdAndUpdate(id,{$set:{name:name,code:code}},function(err,locs){
+
+  })
+
+
+res.redirect('/viewCustomers')
+ 
+}
+
+});
+
+
+
+  // this route is for deleting a category
+  router.get('/customer/delete/:id',isLoggedIn, (req, res) => {
+
+    Customer.findByIdAndRemove(req.params.id, (err, doc) => {
+      if (!err) {
+          res.redirect('/viewCustomers');
+      }
+      else { console.log('Error in deleting subject :' + err); }
+    });
+    });
+
+
+//reverse stock received
+router.get('/reverseRec',isLoggedIn, (req, res) => {
+  var pro = req.user
+  var m = moment()
+var year = m.format('YYYY')
+var dateValue = m.valueOf()
+var mformat = m.format("L")
+var date = m.toString()
+Dispatch.find({mformat:mformat},(err, ocs) => {
+if(ocs.length == 0){
+
+  Stock.find({mformat:mformat},(err, docs) => {
+      if (!err) {
+          res.render("product/listChange", {
+             list:docs,pro:pro
+            
+          });
+      }
+  });
+}else{
+  console.log('yes')
+  res.render('product/listChange')
+}
+  })
+  }); 
 
 
 
 
 
+  
+  
+  router.post('/reverseRec/:id',isLoggedIn,function(req,res){
+    var id = req.params.id
+    var quantity = req.body.code
+    var arr = []
+    var m = moment()
+    var year = m.format('YYYY')
+    var dateValue = m.valueOf()
+    var mformat = m.format("L")
+    var oldQty
+    let reg = /\d+\.*\d*/g;
+  
+    let result = quantity.match(reg)
+    let rcvdQuantity = Number(result)
+  /* Stock.find({barcodeNumber:barcodeNumber,mformat:mformat},function(err,joc){
+        if(arr.length > 0 && arr.find(value => value.barcodeNumber == joc[i].barcodeNumber)){
+          console.log('true')
+         arr.find(value => value.barcodeNumber == docs[i].barcodeNumber).quantity += docs[i].quantity;
+    }else{
+arr.push(joc[i])
+    }
+      })*/ 
 
+      console.log(rcvdQuantity,'rcvd')
+
+    Stock.findById(id,function(err,doc){
+      let barcodeNumber = doc.barcodeNumber
+     
+
+oldQty = doc.cases
+let quantity = doc.unitCases * rcvdQuantity
+
+    Stock.findByIdAndUpdate(id,{$set:{cases:rcvdQuantity, quantity:quantity}},function(err,locs){
+    
+    })
+
+
+    Stock.find({barcodeNumber:barcodeNumber,mformat:mformat},function(err,joc){
+      for(var i = 0;i<joc.length;i++){
+
+    
+      if(arr.length > 0 && arr.find(value => value.barcodeNumber == joc[i].barcodeNumber)){
+        console.log('true')
+       arr.find(value => value.barcodeNumber ==joc[i].barcodeNumber).cases += joc[i].cases;
+  }else{
+arr.push(joc[i])
+  }
+
+}
+
+
+  
+  Product.find({barcodeNumber:barcodeNumber},function(err,locs){
+    console.log(arr[0].unitCases,'arr')
+  let proId = locs[0]._id
+ 
+ // let opQuantity = arr[0].cases - oldQty
+  //let nqty  =opQuantity + rcvdQuantity
+    //let nqty = opQuantity + arr[0].quantity
+  //  let openingQty = nqty - arr[0].cases
+
+   
+let nqty2 = arr[0].cases * locs[0].unitCases
+    Product.findByIdAndUpdate(proId,{$set:{rcvdQuantity:arr[0].cases, cases:arr[0].cases,openingQuantity:0, quantity:nqty2}},function(err,koc){
+
+    })
+
+  })
+    })
+
+
+
+    Dispatch.find({barcodeNumber:barcodeNumber,mformat:mformat},function(err,noc){
+if(noc){
+for(var i = 0;i<noc.length;i++){
+Dispatch.findByIdAndRemove(noc[i]._id,function(err,poc){
+
+})
+}
+}
+})
+    })
+  
+  
+  })
+  
+
+
+
+    
+  router.get('/reverseDis',isLoggedIn, (req, res) => {
+    var pro = req.user
+    var m = moment()
+    var year = m.format('YYYY')
+    var dateValue = m.valueOf()
+    var mformat = m.format("L")
+    var date = m.toString()
+    Dispatch.find({mformat:mformat,status:"Pending"},(err, docs) => {
+        if (!err) {
+            res.render("product/listChange2", {
+               list:docs,pro:pro
+              
+            });
+        }
+    });
+    });
+
+
+    router.post('/reverseDis/:id',isLoggedIn,function(req,res){
+      var id = req.params.id
+      var quantity = req.body.code
+      var m = moment()
+      var year = m.format('YYYY')
+      var dateValue = m.valueOf()
+      var mformat = m.format("L")
+      let reg = /\d+\.*\d*/g;
+    
+      let result = quantity.match(reg)
+      let updatedQuantity = Number(result)
+    
+     
+      
+      Dispatch.findById(id,function(err,doc){
+        let barcodeNumber = doc.barcodeNumber
+        let oldQty = doc.casesDispatched
+        Product.find({barcodeNumber:barcodeNumber},function(err,locs){
+      //let nqty = locs[0].quantity + oldQty
+   let nqty = locs[0].cases + oldQty
+   let nqty2 = nqty - updatedQuantity
+      let proId =  locs[0]._id
+let quantity = nqty2 * locs[0].unitCases
+let dispatchedQuantity = updatedQuantity * locs[0].unitCases
+          Product.findByIdAndUpdate(proId,{$set:{ cases:nqty2, quantity:quantity}},function(err,koc){
+
+
+if(!err){
+  Dispatch.findByIdAndUpdate(id,{$set:{casesDispatched:updatedQuantity,quantityDispatched:dispatchedQuantity}},function(err,locs){
+        
+  })
+}
+          
+          })
+
+        })
+      })
+     
+    
+    
+    })
+    
+  //add Shop
+           
+router.get('/shopBatch',isLoggedIn,function(req,res){
+  var pro = req.user
+  res.render('product/batch2',{pro:pro})
+})
+
+
+  
+  router.post('/shopBatch',isLoggedIn,  function(req,res){
+
+    var customer = req.body.customer
+   
+    var id = req.user._id
+
+    var pro = req.user
+  
+    
+
+    req.check('customer','Enter Customer').notEmpty();
+    
+  
+    
+    var errors = req.validationErrors();
+     
+    if (errors) {
+      req.session.errors = errors;
+      req.session.success = false;
+      res.render('product/batch2',{ errors:req.session.errors,pro:pro})
+    
+    }
+    
+    else 
+    
+    Customer.findOne({'name':customer})
+    .then(grower =>{
+    
+      if(grower){
+
+      
+       
+              User.findByIdAndUpdate(id,{$set:{customer:customer}}, function(err,coc){
+            
+          
+      })
+
+    }else{
+      console.log('ma1')
+      req.flash('success', 'Customer Does Not Exist!');
+     
+      req.session.cart = null;
+      res.redirect('/shopBatch/');
+     //res.render('product/update',{}) 
+    }
+      res.redirect('/addShop')
+    
+    
+    })
+    
+    
+    })
+
+
+
+router.get('/addShop',isLoggedIn, function(req,res){
+  var pro = req.user
+  var id = req.user._id;
+
+ User.findById(id,function(err,locs){
+
+
+    if(locs.customer == 'null'){
+      res.redirect('/shopBatch')
+    }else
+ 
+    var customer = locs.customer
+  
+  res.render('product/addShop2',{customer:customer,pro:pro})
+ 
+  })
+  })
+
+router.post('/addShop',isLoggedIn, function(req,res){
+
+  var customer = req.body.customer
+  var shop  = req.body.shop
+  var pro = req.user
+
+  var m = moment()
+
+
+
+
+    req.check('customer','Enter Customer').notEmpty();
+    req.check('shop','Enter Shop').notEmpty();
+   
+    
+  
+    
+    
+    var errors = req.validationErrors();
+     
+    if (errors) {
+  
+      req.session.errors = errors;
+      req.session.success = false;
+      res.render('product/addShop2',{ errors:req.session.errors,pro:pro})
+      
+    
+    }
+    else{
+
+    var book = new Shop();
+    book.name = shop
+    book.customer = customer
+
+        
+         
+          book.save()
+            .then(pro =>{
+  
+           
+            
+           
+            
+          
+          })
+        }
+  res.redirect('/addShop')
+  
+  })
+
+
+  router.get('/viewShops',isLoggedIn, function(req,res){
+    var pro = req.user
+    Shop.find((err, doc) => {
+     if (!err) {
+     
+         res.render("product/shopList", {
+            
+             list: doc,pro:pro
+           
+             
+         });
+       
+     }
+    });
+    
+    
+  })
+  
+
+  
+router.get('/shop/:id',isLoggedIn, function(req,res){
+  var pro = req.user
+Shop.findById(req.params.id, (err, doc) => {
+ if (!err) {
+ 
+     res.render("product/shopUpdate", {
+        
+         doc: doc,pro:pro
+       
+         
+     });
+   
+ }
+});
+
+
+
+})
+
+
+router.post('/shop/:id',isLoggedIn,   (req, res) => {
+var pro = req.user
+var m = moment()
+
+var id = req.params.id;
+var name = req.body.name;
+var customer = req.body.customer
+
+
+req.check('name','Enter Shop').notEmpty();
+req.check('customer','Enter Customer').notEmpty();
+
+
+ 
+var errors = req.validationErrors();
+
+
+
+if (errors) {
+
+  
+     req.session.errors = errors;
+     req.session.success = false;
+     res.render('product/shopUpdate',{ errors:req.session.errors,pro:pro})
+  
+ 
+ }
+
+else
+{
+
+  Shop.findByIdAndUpdate(id,{$set:{name:name,customer:customer}},function(err,locs){
+
+  })
+
+
+res.redirect('/viewShops')
+ 
+}
+
+});
+
+
+
+  // this route is for deleting a category
+  router.get('/shop/delete/:id',isLoggedIn, (req, res) => {
+
+    Shop.findByIdAndRemove(req.params.id, (err, doc) => {
+      if (!err) {
+          res.redirect('/viewShops');
+      }
+      else { console.log('Error in deleting subject :' + err); }
+    });
+    });
+
+
+
+    router.post('/not/:id',function(req,res){
+      var m = moment()
+      var date = m.toString()
+    
+    var id = req.params.id
+      Note.find({recId:id},function(err,docs){
+        for(var i = 0; i<docs.length; i++){
+          let nId = docs[i]._id
+    
+          Note.findByIdAndUpdate(nId,{$set:{status:'viewed',dateViewed:date}},function(err,locs){
+    
+          })
+        }
+    
+        res.send('success')
+      })
+    })
+    
+    
     
       
       
@@ -2778,7 +3727,7 @@ router.get('/nList',isLoggedIn,function(req,res){
     if(!err){
 
    
-    res.render('notList',{list:docs})
+    res.render('product/notList',{list:docs})
 
     }
   })
@@ -2793,11 +3742,13 @@ router.get('/notify/:id', isLoggedIn, function(req,res){
 
 let subject = tocs[0].subject
 let message = tocs[0].message
-
-
+let status4 = tocs[0].status4
+let user = tocs[0].user
+let date = tocs[0].date
+let senderPhoto = tocs[0].senderPhoto
 
     
-    res.render('notView',{message:message, subject:subject})
+    res.render('product/notView',{message:message, subject:subject,status4:status4,user:user,date:date,senderPhoto:senderPhoto})
   })
 
 })
@@ -3310,7 +4261,90 @@ else{
   })
    
 
-         
+
+
+
+
+
+
+
+
+
+  //cust
+  
+  router.get('/autocompleteCust/',isLoggedIn, function(req, res, next) {
+
+   
+    var regex= new RegExp(req.query["term"],'i');
+    
+   
+    var uidFilter =Customer.find({ name:regex},{'name':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+  
+    
+    uidFilter.exec(function(err,data){
+   
+  
+  console.log('data',data)
+  
+  var result=[];
+  
+  if(!err){
+     if(data && data.length && data.length>0){
+       data.forEach(sub=>{
+  
+        
+     
+  
+          
+         let obj={
+           id:sub._id,
+           label: sub.name,
+  
+     
+          
+       
+  
+           
+         };
+        
+         result.push(obj);
+         console.log('object',obj.id)
+       });
+  
+     }
+   
+     res.jsonp(result);
+     console.log('Result',result)
+    }
+  
+  })
+  
+  });
+  
+  // role admin
+  //this routes autopopulates teachers info from the id selected from automplet1
+  router.post('/autoCustomer',isLoggedIn,function(req,res){
+    var code = req.body.code
+  
+  
+   Customer.find({name:code},function(err,docs){
+   if(docs == undefined){
+     res.redirect('/dash')
+   }else
+  
+      res.send(docs[0])
+    })
+  
+  
+  })
+   
+
+
+
+
+
+
+
   router.get('/import',isLoggedIn,function(req,res){
     var pro = req.user
         var successMsg = req.flash('success')[0];

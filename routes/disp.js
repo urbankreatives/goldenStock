@@ -315,45 +315,86 @@ var quantity = unitCases * casesDispatched
    
                 })
 
-              User.find({customer:customer, shop:shop},function(err,ocs){
+              Preset.find({customer:customer, shop:shop},function(err,ocs){
   
                 for(var i = 0; i<ocs.length;i++){
                 
             
             
-    let id = ocs[i]._id
-    var not = new Note();
-    not.role = 'admin'
-    not.subject = 'Incoming Delivery';
-    not.message = 'Incoming Delivery for'+" "+name
-    not.examLink = 'null'
-    not.status = 'not viewed';
-    not.status1 = 'new';
-    not.user = user;
-    not.quizId = 'null'
-    not.type = 'exam'
-    not.status2 = 'new'
-    not.status3 = 'new'
-    not.status4 = 'null'
-    not.date = m
+    let id = ocs[i].userId
+    var note = new Note();
+    note.role = 'dispatcher'
+    note.subject = 'Incoming Delivery';
+    note.message = casesDispatched+" "+'cases dispatched of'+" "+name+" "+'to your shop'
+    note.customer = customer
+    note.shop = shop
+    note.status = 'not viewed';
+    note.status1 = 'new';
+    note.user = user;
+    
+    note.type = 'dispatch'
+    note.status2 = 'new'
+    note.status3 = 'new'
+    note.status4 = 'null'
+    note.date = m
 
-    not.dateViewed = 'null'
-    not.recId = ocs[i]._id
-    not.recRole = 'merchant'
-    not.senderPhoto = 'propic.jpg'
-    not.numDate = numDate
+    note.dateViewed = 'null'
+    note.recId = ocs[i].userId
+    note.recRole = 'merchant'
+    note.senderPhoto = req.user.photo
+    note.numDate = numDate
              
   
                
           
-              not.save()
+              note.save()
                 .then(user =>{
-         
+                 
+           
             })
    
           }
+
+          User.find({role:'admin'},function(err,vocs){
+  
+            for(var i = 0; i<vocs.length;i++){
+            
+        
+        
+  let idN = vocs[i]._id
+  var not = new Note();
+  not.role = 'dispatcher'
+  not.subject = 'Stock Dispatched';
+  not.message = casesDispatched+" "+'cases dispatched of'+" "+name+" "+'on'+" "+date
+  not.status = 'not viewed';
+  not.status1 = 'new';
+  not.user = dispatcher;
+  not.type = 'dispatch'
+  not.status2 = 'new'
+  not.status3 = 'new'
+  not.status4 = 'null'
+  not.date = m
+  not.dateViewed = 'null'
+  not.recId = vocs[i]._id
+  not.recRole = 'admin'
+  not.senderPhoto = req.user.photo
+  not.numDate = numDate
+  not.customer = 'null'
+  not.shop = 'null'
+  
+           
+      
+          not.save()
+            .then(user =>{
+     
         })
- 
+  
+      }
+    })
+        })
+
+
+      
              
             })
           
@@ -370,7 +411,7 @@ var quantity = unitCases * casesDispatched
       }else{
         req.flash('success', 'Check Typo for ProductName, Customer & Shop!');
  
-        req.session.cart = null;
+      
         res.redirect('/ship/dispatch');
       }
 })

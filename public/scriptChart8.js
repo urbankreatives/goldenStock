@@ -221,7 +221,7 @@ var button6 = document.getElementById('myChart6tab').addEventListener('click', f
       var name = id+uid
       document.getElementById(id).id = name*/
       
-      let customer = 'OK'
+      let customer = 'OK ZIMBABWE'
 
       let product  = document.getElementById('productName5').value
       let category = document.getElementById('category5').value

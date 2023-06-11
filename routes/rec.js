@@ -53,7 +53,7 @@ router.post('/addStock',isLoggedIn, function(req,res){
   var year = m.format('YYYY')
   var dateValue = m.valueOf()
   var date = m.toString()
-
+  var numDate = m.valueOf()
 var month = m.format('MMMM')
 
 var mformat = m.format("L")
@@ -130,6 +130,44 @@ var quantity  = casesReceived * unitCases
              
 
             })
+
+            User.find({role:'admin'},function(err,ocs){
+  
+              for(var i = 0; i<ocs.length;i++){
+              
+          
+          
+  let id = ocs[i]._id
+  var not = new Note();
+  not.role = 'receiver'
+  not.subject = 'Stock Received';
+  not.message = casesReceived+" "+'cases received of'+" "+name+" "+'on'+" "+date
+  not.status = 'not viewed';
+  not.status1 = 'new';
+  not.user = receiver;
+  not.type = 'receiving'
+  not.status2 = 'new'
+  not.status3 = 'new'
+  not.status4 = 'null'
+  not.date = m
+  not.dateViewed = 'null'
+  not.recId = ocs[i]._id
+  not.recRole = 'admin'
+  not.senderPhoto = req.user.photo
+  not.numDate = numDate
+  not.customer = 'null'
+  not.shop = 'null'
+           
+
+             
+        
+            not.save()
+              .then(user =>{
+       
+          })
+ 
+        }
+      })
           
           /*  req.session.message = {
               type:'success',
@@ -161,17 +199,7 @@ router.get('/search',isLoggedIn,function(req,res){
 
 
 
-router.get('/viewSales',isLoggedIn,function(req,res){
-  var pro = req.user
- Sales.find({},(err, docs) => {
-      if (!err) {
-          res.render("product/sales", {
-             list:docs,pro:pro
-            
-          });
-      }
-  });
-})
+
 
 router.post('/fill',function(req,res){
 
