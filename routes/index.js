@@ -2585,8 +2585,13 @@ router.post('/viewStock',isLoggedIn,function(req,res){
   console.log(date.split('-')[0])
   var startDate = date.split('-')[0]
   var endDate = date.split('-')[1]
-   var startValue = moment(startDate).valueOf()
-   var endValue = moment(endDate).valueOf()
+   var startValueA = moment(startDate)
+   var startValueB=startValueA.subtract(1,"days");
+   var startValue = moment(startValueB).valueOf()
+
+   var endValueA = moment(endDate)
+   var endValueB = endValueA.add(1,"days");
+   var endValue= moment(endValueB).valueOf()
   console.log(startValue,endValue,'output')
   Stock.find({},(err, docs) => {
     for(var i = 0;i<docs.length;i++){
@@ -2720,8 +2725,13 @@ router.post('/viewSales',isLoggedIn,function(req,res){
   console.log(date.split('-')[0])
   var startDate = date.split('-')[0]
   var endDate = date.split('-')[1]
-   var startValue = moment(startDate).valueOf()
-   var endValue = moment(endDate).valueOf()
+   var startValueA = moment(startDate)
+   var startValueB=startValueA.subtract(1,"days");
+   var startValue = moment(startValueB).valueOf()
+
+   var endValueA = moment(endDate)
+   var endValueB = endValueA.add(1,"days");
+   var endValue= moment(endValueB).valueOf()
   console.log(startValue,endValue,'output')
   Sales.find({customer:customer,shop:shop},(err, docs) => {
     for(var i = 0;i<docs.length;i++){

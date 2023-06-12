@@ -253,9 +253,9 @@ var quantity = unitCases * casesDispatched
   
   }
   else{
-    Shop.findOne({'customer':customer,'shop':shop})
+    Shop.findOne({'customer':customer,'name':shop})
     .then(loc=>{
-     
+     console.log(loc,'loc')
       Product.findOne({'name':name})
     .then(hoc=>{
 
